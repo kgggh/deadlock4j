@@ -6,10 +6,10 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class ThreadDeadlockDetector implements DeadlockDetector {
-
     private final ThreadMXBean threadMXBean;
 
     public ThreadDeadlockDetector() {
@@ -19,11 +19,11 @@ public class ThreadDeadlockDetector implements DeadlockDetector {
     @Override
     public List<DeadlockEvent> detect() {
         long[] deadlockedThreads = threadMXBean.findDeadlockedThreads();
-        List<DeadlockEvent> detectedEvents = new ArrayList<>();
         if (deadlockedThreads == null) {
-            return detectedEvents;
+            return Collections.emptyList();
         }
 
+        List<DeadlockEvent> detectedEvents = new ArrayList<>();
         for (long threadId : deadlockedThreads) {
             ThreadInfo threadInfo = threadMXBean.getThreadInfo(threadId);
 
@@ -40,6 +40,7 @@ public class ThreadDeadlockDetector implements DeadlockDetector {
 
             detectedEvents.add(event);
         }
+
         return detectedEvents;
     }
 }
