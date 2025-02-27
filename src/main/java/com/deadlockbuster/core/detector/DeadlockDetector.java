@@ -5,6 +5,5 @@ import com.deadlockbuster.core.event.DeadlockEvent;
 import java.util.List;
 
 public interface DeadlockDetector {
-    void detect();
-    List<DeadlockEvent> getDeadlocks();
+    List<DeadlockEvent> detect();
 }
