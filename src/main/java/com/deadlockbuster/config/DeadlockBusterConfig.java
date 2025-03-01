@@ -6,8 +6,6 @@ public class DeadlockBusterConfig {
     private boolean enable;
     private boolean logEnable;
     private boolean sendEvent;
-    private String databaseType;
-
     private String centralServerIp;
     private int centralServerPort;
 
@@ -15,7 +13,6 @@ public class DeadlockBusterConfig {
         this.enable = true;
         this.logEnable = true;
         this.sendEvent = false;
-        this.databaseType = null;
         this.centralServerIp = null;
         this.centralServerPort = 8282;
     }
@@ -24,7 +21,6 @@ public class DeadlockBusterConfig {
         this.enable = Boolean.parseBoolean(properties.getProperty("deadlock-buster.enable", String.valueOf(enable)));
         this.logEnable = Boolean.parseBoolean(properties.getProperty("deadlock-buster.log-enable", String.valueOf(logEnable)));
         this.sendEvent = Boolean.parseBoolean(properties.getProperty("deadlock-buster.send-event", String.valueOf(sendEvent)));
-        this.databaseType = properties.getProperty("deadlock-buster.database-type", databaseType);
         this.centralServerIp = properties.getProperty("deadlock-buster.central-server-ip", centralServerIp);
         this.centralServerPort = Integer.parseInt(properties.getProperty("deadlock-buster.central-server-port", String.valueOf(centralServerPort)));
     }
@@ -51,14 +47,6 @@ public class DeadlockBusterConfig {
 
     public void setSendEvent(boolean sendEvent) {
         this.sendEvent = sendEvent;
-    }
-
-    public String getDatabaseType() {
-        return databaseType;
-    }
-
-    public void setDatabaseType(String databaseType) {
-        this.databaseType = databaseType;
     }
 
     public String getCentralServerIp() {

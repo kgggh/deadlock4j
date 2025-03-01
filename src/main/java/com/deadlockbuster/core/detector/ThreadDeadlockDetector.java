@@ -5,12 +5,11 @@ import com.deadlockbuster.core.event.ThreadDeadlockEvent;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ThreadDeadlockDetector implements DeadlockDetector<ThreadDeadlockEvent> {
     private final ThreadMXBean threadMXBean;
+    private final Set<Long> detectedDeadlockThreads = new HashSet<>();
 
     public ThreadDeadlockDetector() {
         this.threadMXBean = ManagementFactory.getThreadMXBean();
@@ -20,22 +19,25 @@ public class ThreadDeadlockDetector implements DeadlockDetector<ThreadDeadlockEv
     public List<ThreadDeadlockEvent> detect() {
         long[] deadlockedThreads = threadMXBean.findDeadlockedThreads();
         if (deadlockedThreads == null) {
+            detectedDeadlockThreads.clear();
+
             return Collections.emptyList();
         }
 
         List<ThreadDeadlockEvent> detectedEvents = new ArrayList<>();
-        for (long threadId : deadlockedThreads) {
-            ThreadInfo threadInfo = threadMXBean.getThreadInfo(threadId);
-
-            if(threadInfo == null) {
+        for(long threadId : deadlockedThreads) {
+            if (!detectedDeadlockThreads.add(threadId)) {
                 continue;
             }
 
-            detectedEvents.add(new ThreadDeadlockEvent(
-                threadInfo.getThreadName(),
-                threadInfo.getThreadId(),
-                threadInfo.getThreadState().name()
-            ));
+            ThreadInfo threadInfo = threadMXBean.getThreadInfo(threadId);
+            if(threadInfo != null) {
+                detectedEvents.add(new ThreadDeadlockEvent(
+                    threadInfo.getThreadName(),
+                    threadInfo.getThreadId(),
+                    threadInfo.getThreadState().name()
+                ));
+            }
         }
 
         return detectedEvents;
