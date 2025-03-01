@@ -1,6 +1,6 @@
 package com.deadlockbuster.core.detector;
 
-import com.deadlockbuster.core.event.DeadlockEvent;
+import com.deadlockbuster.core.event.ThreadDeadlockEvent;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -55,17 +55,17 @@ class ThreadDeadlockDetectorTest {
         Thread.sleep(3000);
 
         //when
-        List<DeadlockEvent> detectedEvents = detector.detect();
+        List<ThreadDeadlockEvent> detectedEvents = detector.detect();
 
         //then
         assertThat(detectedEvents).hasSize(2);
 
         assertThat(detectedEvents)
-            .extracting(DeadlockEvent::getThreadName)
+            .extracting(ThreadDeadlockEvent::getThreadName)
             .contains(thread1.getName(), thread2.getName());
 
         assertThat(detectedEvents)
-            .extracting(DeadlockEvent::getThreadState)
+            .extracting(ThreadDeadlockEvent::getThreadState)
             .containsAnyOf("BLOCKED", "WAITING");
     }
 }

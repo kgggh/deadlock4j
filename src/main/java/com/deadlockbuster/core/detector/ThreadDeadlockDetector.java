@@ -1,6 +1,6 @@
 package com.deadlockbuster.core.detector;
 
-import com.deadlockbuster.core.event.DeadlockEvent;
+import com.deadlockbuster.core.event.ThreadDeadlockEvent;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ThreadDeadlockDetector implements DeadlockDetector {
+public class ThreadDeadlockDetector implements DeadlockDetector<ThreadDeadlockEvent> {
     private final ThreadMXBean threadMXBean;
 
     public ThreadDeadlockDetector() {
@@ -17,13 +17,13 @@ public class ThreadDeadlockDetector implements DeadlockDetector {
     }
 
     @Override
-    public List<DeadlockEvent> detect() {
+    public List<ThreadDeadlockEvent> detect() {
         long[] deadlockedThreads = threadMXBean.findDeadlockedThreads();
         if (deadlockedThreads == null) {
             return Collections.emptyList();
         }
 
-        List<DeadlockEvent> detectedEvents = new ArrayList<>();
+        List<ThreadDeadlockEvent> detectedEvents = new ArrayList<>();
         for (long threadId : deadlockedThreads) {
             ThreadInfo threadInfo = threadMXBean.getThreadInfo(threadId);
 
@@ -31,14 +31,11 @@ public class ThreadDeadlockDetector implements DeadlockDetector {
                 continue;
             }
 
-            DeadlockEvent event = new DeadlockEvent(
-                DeadlockEvent.DeadlockType.THREAD,
+            detectedEvents.add(new ThreadDeadlockEvent(
                 threadInfo.getThreadName(),
                 threadInfo.getThreadId(),
                 threadInfo.getThreadState().name()
-            );
-
-            detectedEvents.add(event);
+            ));
         }
 
         return detectedEvents;
