@@ -3,7 +3,7 @@ plugins {
     id 'com.google.protobuf' version '0.9.4'
 }
 
-group = 'org.deadlockbuster'
+group = 'com.deadlockbuster'
 version = '0.1'
 
 repositories {
@@ -16,7 +16,9 @@ dependencies {
     testImplementation 'org.assertj:assertj-core:3.24.2'
     testImplementation 'org.mockito:mockito-junit-jupiter:4.0.0'
     implementation 'org.slf4j:slf4j-api:2.0.9'
-    implementation 'ch.qos.logback:logback-classic:1.4.12'
+    testImplementation 'uk.org.lidalia:slf4j-test:1.2.0'
+    runtimeOnly 'ch.qos.logback:logback-classic:1.4.12'
+    testImplementation 'ch.qos.logback:logback-classic:1.4.12'
     implementation 'com.google.protobuf:protobuf-java:4.29.3'
 }
 
