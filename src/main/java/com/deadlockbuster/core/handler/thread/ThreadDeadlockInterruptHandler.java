@@ -1,4 +1,4 @@
-package com.deadlockbuster.core.handler;
+package com.deadlockbuster.core.handler.thread;
 
 import com.deadlockbuster.core.event.ThreadDeadlockEvent;
 import org.slf4j.Logger;

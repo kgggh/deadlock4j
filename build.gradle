@@ -1,9 +1,10 @@
 plugins {
     id 'java'
+    id 'com.google.protobuf' version '0.9.4'
 }
 
-group = 'org.example'
-version = '1.0-SNAPSHOT'
+group = 'org.deadlockbuster'
+version = '0.1'
 
 repositories {
     mavenCentral()
@@ -16,8 +17,22 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:4.0.0'
     implementation 'org.slf4j:slf4j-api:2.0.9'
     implementation 'ch.qos.logback:logback-classic:1.4.12'
+    implementation 'com.google.protobuf:protobuf-java:4.29.3'
 }
 
 test {
     useJUnitPlatform()
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:4.29.3"
+    }
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java { }
+            }
+        }
+    }
 }

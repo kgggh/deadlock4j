@@ -1,8 +1,5 @@
 package com.deadlockbuster.core.event;
 
-/**
- * 스레드 데드락 발생 시 생성되는 이벤트 객체
- */
 public class ThreadDeadlockEvent extends DeadlockEvent {
     private final String threadName;
     private final long threadId;

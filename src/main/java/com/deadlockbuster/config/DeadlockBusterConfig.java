@@ -16,24 +16,9 @@ public class DeadlockBusterConfig {
     private int heartbeatInterval;
     private EventTransportType eventTransportType;
     private List<String> databaseExceptionClasses;
-    private String queueName;
 
     public DeadlockBusterConfig() {
-        this.enable = true;
-        this.logEnable = true;
-    }
 
-    public DeadlockBusterConfig(boolean enable, boolean logEnable, boolean sendEvent, String centralServerIp, int centralServerPort, int monitoringInterval, int heartbeatInterval, EventTransportType eventTransportType, List<String> databaseExceptionClasses, String queueName) {
-        this.enable = enable;
-        this.logEnable = logEnable;
-        this.sendEvent = sendEvent;
-        this.centralServerIp = centralServerIp;
-        this.centralServerPort = centralServerPort;
-        this.monitoringInterval = monitoringInterval;
-        this.heartbeatInterval = heartbeatInterval;
-        this.eventTransportType = eventTransportType;
-        this.databaseExceptionClasses = databaseExceptionClasses;
-        this.queueName = queueName;
     }
 
     public boolean isEnable() {
@@ -108,11 +93,18 @@ public class DeadlockBusterConfig {
         this.databaseExceptionClasses = databaseExceptionClasses;
     }
 
-    public String getQueueName() {
-        return queueName;
-    }
-
-    public void setQueueName(String queueName) {
-        this.queueName = queueName;
+    @Override
+    public String toString() {
+        return "DeadlockBusterConfig{" +
+            "enable=" + enable +
+            ", logEnable=" + logEnable +
+            ", sendEvent=" + sendEvent +
+            ", centralServerIp='" + centralServerIp + '\'' +
+            ", centralServerPort=" + centralServerPort +
+            ", monitoringInterval=" + monitoringInterval +
+            ", heartbeatInterval=" + heartbeatInterval +
+            ", eventTransportType=" + eventTransportType +
+            ", databaseExceptionClasses=" + databaseExceptionClasses +
+            '}';
     }
 }

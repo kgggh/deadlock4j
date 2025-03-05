@@ -1,7 +1,8 @@
-package com.deadlockbuster.core.handler;
+package com.deadlockbuster.core.handler.thread;
 
 import com.deadlockbuster.core.detector.DeadlockDetector;
 import com.deadlockbuster.core.event.ThreadDeadlockEvent;
+import com.deadlockbuster.core.handler.DeadlockHandlerManager;
 
 import java.util.ArrayList;
 import java.util.List;
