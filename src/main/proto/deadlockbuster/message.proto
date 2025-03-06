@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package deadlockbuster;
+
+import "google/protobuf/timestamp.proto";
+
+option java_package = "com.deadlockbuster.proto";
+option java_multiple_files = true;
+
+enum MessageType {
+  HEARTBEAT = 0;
+  THREAD_DEADLOCK = 1;
+  DATABASE_DEADLOCK = 2;
+}
+
+message HeartbeatMessageProto {
+  string message = 1;
+}
+
+message ThreadDeadlockEventProto {
+  google.protobuf.Timestamp timestamp = 1;
+  string thread_name = 2;
+  int64 thread_id = 3;
+  string thread_state = 4;
+}
+
+message DatabaseDeadlockEventProto {
+  google.protobuf.Timestamp timestamp = 1;
+  string exception_name = 2;
+  string sql_state = 3;
+  string reason = 4;
+}
+
+message MessageProto {
+  MessageType type = 1;
+  oneof payload {
+    HeartbeatMessageProto heartbeat = 2;
+    ThreadDeadlockEventProto thread_deadlock = 3;
+    DatabaseDeadlockEventProto database_deadlock = 4;
+  }
+}
