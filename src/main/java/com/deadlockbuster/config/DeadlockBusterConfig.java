@@ -3,70 +3,70 @@ package com.deadlockbuster.config;
 import java.util.List;
 
 public class DeadlockBusterConfig {
-    public enum EventTransportType {
+    public enum TransportType {
         TCP, QUEUE
     }
 
-    private boolean enable;
-    private boolean logEnable;
-    private boolean sendEvent;
-    private String centralServerIp;
-    private int centralServerPort;
-    private int monitoringInterval;
+    private boolean detectEnabled;
+    private boolean logEnabled;
+    private boolean sendEnabled;
+    private String tcpServerIp;
+    private int tcpServerPort;
+    private int monitorInterval;
     private int heartbeatInterval;
-    private EventTransportType eventTransportType;
-    private List<String> databaseExceptionClasses;
+    private TransportType transportType;
+    private List<String> detectDatabaseExceptionClasses;
 
     public DeadlockBusterConfig() {
 
     }
 
-    public boolean isEnable() {
-        return enable;
+    public boolean isDetectEnabled() {
+        return detectEnabled;
     }
 
-    public void setEnable(boolean enable) {
-        this.enable = enable;
+    public void setDetectEnabled(boolean detectEnabled) {
+        this.detectEnabled = detectEnabled;
     }
 
-    public boolean isLogEnable() {
-        return logEnable;
+    public boolean isLogEnabled() {
+        return logEnabled;
     }
 
-    public void setLogEnable(boolean logEnable) {
-        this.logEnable = logEnable;
+    public void setLogEnabled(boolean logEnabled) {
+        this.logEnabled = logEnabled;
     }
 
-    public boolean isSendEvent() {
-        return sendEvent;
+    public boolean isSendEnabled() {
+        return sendEnabled;
     }
 
-    public void setSendEvent(boolean sendEvent) {
-        this.sendEvent = sendEvent;
+    public void setSendEnabled(boolean sendEnabled) {
+        this.sendEnabled = sendEnabled;
     }
 
-    public String getCentralServerIp() {
-        return centralServerIp;
+    public String getTcpServerIp() {
+        return tcpServerIp;
     }
 
-    public void setCentralServerIp(String centralServerIp) {
-        this.centralServerIp = centralServerIp;
+    public void setTcpServerIp(String tcpServerIp) {
+        this.tcpServerIp = tcpServerIp;
     }
 
-    public int getCentralServerPort() {
-        return centralServerPort;
+    public int getTcpServerPort() {
+        return tcpServerPort;
     }
 
-    public void setCentralServerPort(int centralServerPort) {
-        this.centralServerPort = centralServerPort;
+    public void setTcpServerPort(int tcpServerPort) {
+        this.tcpServerPort = tcpServerPort;
     }
 
-    public int getMonitoringInterval() {
-        return monitoringInterval;
+    public int getMonitorInterval() {
+        return monitorInterval;
     }
 
-    public void setMonitoringInterval(int monitoringInterval) {
-        this.monitoringInterval = monitoringInterval;
+    public void setMonitorInterval(int monitorInterval) {
+        this.monitorInterval = monitorInterval;
     }
 
     public int getHeartbeatInterval() {
@@ -77,34 +77,34 @@ public class DeadlockBusterConfig {
         this.heartbeatInterval = heartbeatInterval;
     }
 
-    public EventTransportType getEventTransportType() {
-        return eventTransportType;
+    public TransportType getEventTransportType() {
+        return transportType;
     }
 
-    public void setEventTransportType(EventTransportType eventTransportType) {
-        this.eventTransportType = eventTransportType;
+    public void setEventTransportType(TransportType transportType) {
+        this.transportType = transportType;
     }
 
-    public List<String> getDatabaseExceptionClasses() {
-        return databaseExceptionClasses;
+    public List<String> getDetectDatabaseExceptionClasses() {
+        return detectDatabaseExceptionClasses;
     }
 
-    public void setDatabaseExceptionClasses(List<String> databaseExceptionClasses) {
-        this.databaseExceptionClasses = databaseExceptionClasses;
+    public void setDetectDatabaseExceptionClasses(List<String> detectDatabaseExceptionClasses) {
+        this.detectDatabaseExceptionClasses = detectDatabaseExceptionClasses;
     }
 
     @Override
     public String toString() {
         return "DeadlockBusterConfig{" +
-            "enable=" + enable +
-            ", logEnable=" + logEnable +
-            ", sendEvent=" + sendEvent +
-            ", centralServerIp='" + centralServerIp + '\'' +
-            ", centralServerPort=" + centralServerPort +
-            ", monitoringInterval=" + monitoringInterval +
+            "enable=" + detectEnabled +
+            ", logEnable=" + logEnabled +
+            ", sendEvent=" + sendEnabled +
+            ", centralServerIp='" + tcpServerIp + '\'' +
+            ", centralServerPort=" + tcpServerPort +
+            ", monitoringInterval=" + monitorInterval +
             ", heartbeatInterval=" + heartbeatInterval +
-            ", eventTransportType=" + eventTransportType +
-            ", databaseExceptionClasses=" + databaseExceptionClasses +
+            ", eventTransportType=" + transportType +
+            ", databaseExceptionClasses=" + detectDatabaseExceptionClasses +
             '}';
     }
 }
