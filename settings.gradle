@@ -1,2 +1,3 @@
 rootProject.name = 'deadlock-buster'
 
+include 'deadlock4j-core'
