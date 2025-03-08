@@ -16,7 +16,7 @@ class TcpEventSendStrategyTest {
     private TcpEventSendStrategy sendStrategy;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         tcpEventSender = mock(TcpEventSender.class);
         sendStrategy = new TcpEventSendStrategy(tcpEventSender);
     }

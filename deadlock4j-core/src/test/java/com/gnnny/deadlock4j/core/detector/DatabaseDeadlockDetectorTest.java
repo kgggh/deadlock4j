@@ -19,7 +19,7 @@ class DatabaseDeadlockDetectorTest {
     private DatabaseDeadlockDetector detector;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         exceptionChecker = mock(DatabaseDeadlockExceptionChecker.class);
         detector = new DatabaseDeadlockDetector(exceptionChecker);
     }

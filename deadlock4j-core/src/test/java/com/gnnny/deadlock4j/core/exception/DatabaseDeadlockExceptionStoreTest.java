@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DatabaseDeadlockExceptionStoreTest {
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         DatabaseDeadlockExceptionStore.clear();
     }
 

@@ -19,7 +19,7 @@ class DatabaseDeadlockExceptionHandlerTest {
     private DatabaseDeadlockExceptionHandler handler;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         exceptionChecker = mock(DatabaseDeadlockExceptionChecker.class);
         handler = new DatabaseDeadlockExceptionHandler(exceptionChecker);
         DatabaseDeadlockExceptionStore.clear();

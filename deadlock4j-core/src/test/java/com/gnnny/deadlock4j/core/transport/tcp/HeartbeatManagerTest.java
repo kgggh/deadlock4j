@@ -18,7 +18,7 @@ class HeartbeatManagerTest {
     private ScheduledExecutorService scheduler;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         connectionManager = mock(ConnectionManager.class);
         tcpEventSender = mock(TcpEventSender.class);
         scheduler = mock(ScheduledExecutorService.class);

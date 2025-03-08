@@ -13,7 +13,7 @@ class QueueEventSendStrategyTest {
     private QueueEventSendStrategy sendStrategy;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         queueEventSender = mock(QueueEventSender.class);
         sendStrategy = new QueueEventSendStrategy(queueEventSender);
     }

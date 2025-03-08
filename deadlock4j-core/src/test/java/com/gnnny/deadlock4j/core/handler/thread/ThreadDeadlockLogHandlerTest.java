@@ -22,7 +22,7 @@ class ThreadDeadlockLogHandlerTest {
     private ListAppender<ILoggingEvent> listAppender;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         handler = new ThreadDeadlockLogHandler();
 
         testLogger = TestLoggerFactory.getTestLogger(ThreadDeadlockLogHandler.class);

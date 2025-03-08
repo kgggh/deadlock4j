@@ -18,7 +18,7 @@ class DatabaseDeadlockLogHandlerTest {
     private ListAppender<ILoggingEvent> listAppender;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         handler = new DatabaseDeadlockLogHandler();
 
         Logger logger = (Logger) LoggerFactory.getLogger(DatabaseDeadlockLogHandler.class);
