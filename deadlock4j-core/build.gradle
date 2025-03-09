@@ -3,13 +3,6 @@ plugins {
     id 'com.google.protobuf' version '0.9.4'
 }
 
-group = 'com.gnnny'
-version = '0.1'
-
-repositories {
-    mavenCentral()
-}
-
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
