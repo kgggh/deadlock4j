@@ -1,9 +1,8 @@
 package com.gnnny.deadlock4j.core.event;
 
-import java.io.Serializable;
 import java.time.Instant;
 
-public abstract class DeadlockEvent implements Serializable {
+public abstract class DeadlockEvent {
 
     public enum DeadlockType {
         THREAD, DATABASE

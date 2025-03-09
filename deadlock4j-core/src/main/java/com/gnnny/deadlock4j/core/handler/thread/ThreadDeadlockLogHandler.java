@@ -22,6 +22,7 @@ public class ThreadDeadlockLogHandler implements ThreadDeadlockHandler {
 
     private String formattedLog(ThreadDeadlockEvent event) {
         return """
+        
         [DEADLOCK DETECTED]
         ──────────────────────────────────────────
         Type        : %s

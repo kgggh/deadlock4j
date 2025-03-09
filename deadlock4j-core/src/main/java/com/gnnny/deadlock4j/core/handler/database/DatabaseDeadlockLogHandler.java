@@ -23,6 +23,7 @@ public class DatabaseDeadlockLogHandler implements DatabaseDeadlockHandler {
 
     private String formattedLog(DatabaseDeadlockEvent event) {
         return """
+        
         [DEADLOCK DETECTED]
         ──────────────────────────────────────────
         Type           : %s
