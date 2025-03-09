@@ -1,6 +1,6 @@
 package com.gnnny.deadlock4j.core.transport.tcp;
 
-import com.deadlockbuster.proto.MessageProto;
+import com.deadlock4j.proto.MessageProto;
 import com.gnnny.deadlock4j.util.ProtoConverter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,7 +18,7 @@ class HeartbeatManagerTest {
     private ScheduledExecutorService scheduler;
 
     @BeforeEach
-    void setUp() {
+    void set_up() {
         connectionManager = mock(ConnectionManager.class);
         tcpEventSender = mock(TcpEventSender.class);
         scheduler = mock(ScheduledExecutorService.class);

@@ -19,7 +19,7 @@ class ConnectionManagerTest {
     private Socket socket;
 
     @BeforeEach
-    void setUp() {
+    void set_up() {
         scheduler = mock(ScheduledExecutorService.class);
         connectionManager = spy(new ConnectionManager("127.0.0.1", 8282, scheduler));
         socket = mock(Socket.class);

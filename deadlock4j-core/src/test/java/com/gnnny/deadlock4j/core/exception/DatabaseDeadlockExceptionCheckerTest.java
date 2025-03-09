@@ -14,7 +14,7 @@ class DatabaseDeadlockExceptionCheckerTest {
     private DatabaseDeadlockExceptionChecker checker;
 
     @BeforeEach
-    void setUp() {
+    void set_up() {
         checker = new DatabaseDeadlockExceptionChecker();
     }
 

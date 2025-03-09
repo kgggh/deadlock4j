@@ -19,7 +19,7 @@ class DatabaseDeadlockHandlerManagerTest {
     private DatabaseDeadlockHandler handler2;
 
     @BeforeEach
-    void setUp() {
+    void set_up() {
         detector = mock(DeadlockDetector.class);
         manager = new DatabaseDeadlockHandlerManager(detector);
         handler1 = mock(DatabaseDeadlockHandler.class);

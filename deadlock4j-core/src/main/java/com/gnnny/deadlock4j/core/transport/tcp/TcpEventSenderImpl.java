@@ -1,6 +1,6 @@
 package com.gnnny.deadlock4j.core.transport.tcp;
 
-import com.deadlockbuster.proto.MessageProto;
+import com.deadlock4j.proto.MessageProto;
 import com.gnnny.deadlock4j.core.event.DeadlockEvent;
 import com.gnnny.deadlock4j.util.ProtoConverter;
 import org.slf4j.Logger;

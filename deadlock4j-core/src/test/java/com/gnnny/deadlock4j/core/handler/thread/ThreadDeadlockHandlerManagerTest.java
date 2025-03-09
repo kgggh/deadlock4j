@@ -18,7 +18,7 @@ class ThreadDeadlockHandlerManagerTest {
     private ThreadDeadlockHandler handler2;
 
     @BeforeEach
-    void setUp() {
+    void set_up() {
         detector = mock(ThreadDeadlockDetector.class);
         manager = new ThreadDeadlockHandlerManager(detector);
         handler1 = mock(ThreadDeadlockHandler.class);

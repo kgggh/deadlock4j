@@ -1,6 +1,6 @@
 package com.gnnny.deadlock4j.util;
 
-import com.deadlockbuster.proto.*;
+import com.deadlock4j.proto.*;
 import com.gnnny.deadlock4j.core.event.DatabaseDeadlockEvent;
 import com.gnnny.deadlock4j.core.event.DeadlockEvent;
 import com.gnnny.deadlock4j.core.event.ThreadDeadlockEvent;

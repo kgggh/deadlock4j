@@ -1,6 +1,6 @@
 package com.gnnny.deadlock4j.core.transport.tcp;
 
-import com.deadlockbuster.proto.MessageProto;
+import com.deadlock4j.proto.MessageProto;
 import com.gnnny.deadlock4j.core.event.DeadlockEvent;
 import com.gnnny.deadlock4j.core.event.ThreadDeadlockEvent;
 import com.gnnny.deadlock4j.util.ProtoConverter;
@@ -22,7 +22,7 @@ class TcpEventSenderImplTest {
     private OutputStream outputStream;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void set_up() throws IOException {
         socket = mock(Socket.class);
         outputStream = mock(BufferedOutputStream.class);
         connectionManager = mock(ConnectionManager.class);

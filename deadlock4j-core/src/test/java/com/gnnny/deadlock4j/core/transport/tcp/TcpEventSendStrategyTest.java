@@ -1,6 +1,6 @@
 package com.gnnny.deadlock4j.core.transport.tcp;
 
-import com.deadlockbuster.proto.MessageProto;
+import com.deadlock4j.proto.MessageProto;
 import com.gnnny.deadlock4j.core.event.DeadlockEvent;
 import com.gnnny.deadlock4j.core.event.ThreadDeadlockEvent;
 import com.gnnny.deadlock4j.util.ProtoConverter;
@@ -16,7 +16,7 @@ class TcpEventSendStrategyTest {
     private TcpEventSendStrategy sendStrategy;
 
     @BeforeEach
-    void setUp() {
+    void set_up() {
         tcpEventSender = mock(TcpEventSender.class);
         sendStrategy = new TcpEventSendStrategy(tcpEventSender);
     }

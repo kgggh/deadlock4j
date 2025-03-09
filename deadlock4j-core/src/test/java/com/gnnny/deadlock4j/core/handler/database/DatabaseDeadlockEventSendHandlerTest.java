@@ -16,7 +16,7 @@ class DatabaseDeadlockEventSendHandlerTest {
     private DatabaseDeadlockEventSendHandler handler;
 
     @BeforeEach
-    void setUp() {
+    void set_up() {
         sendStrategy = mock(EventSendStrategy.class);
         handler = new DatabaseDeadlockEventSendHandler(sendStrategy);
     }

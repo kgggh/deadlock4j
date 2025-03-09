@@ -19,7 +19,7 @@ class ThreadDeadlockInterruptHandlerTest {
     private ListAppender<ILoggingEvent> listAppender;
 
     @BeforeEach
-    void setUp() {
+    void set_up() {
         handler = new ThreadDeadlockInterruptHandler();
 
         Logger logger = (Logger) LoggerFactory.getLogger(ThreadDeadlockInterruptHandler.class);
