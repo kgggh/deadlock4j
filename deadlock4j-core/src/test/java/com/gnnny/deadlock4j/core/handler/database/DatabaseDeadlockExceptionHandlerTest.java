@@ -35,7 +35,7 @@ class DatabaseDeadlockExceptionHandlerTest {
         handler.uncaughtException(Thread.currentThread(), deadlockException);
 
         // then
-        assertThat(DatabaseDeadlockExceptionStore.peekAll()).isNotEmpty()
+        assertThat(DatabaseDeadlockExceptionStore.getAll()).isNotEmpty()
             .contains(deadlockException);
     }
 
@@ -51,6 +51,6 @@ class DatabaseDeadlockExceptionHandlerTest {
             .isInstanceOf(RuntimeException.class)
             .hasCause(non_deadlock_exception);
 
-        assertThat(DatabaseDeadlockExceptionStore.peekAll()).isNotNull().isEmpty();
+        assertThat(DatabaseDeadlockExceptionStore.getAll()).isNotNull().isEmpty();
     }
 }

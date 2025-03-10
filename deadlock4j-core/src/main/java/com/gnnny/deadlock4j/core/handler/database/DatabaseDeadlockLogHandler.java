@@ -1,6 +1,7 @@
 package com.gnnny.deadlock4j.core.handler.database;
 
 import com.gnnny.deadlock4j.core.event.DatabaseDeadlockEvent;
+import com.gnnny.deadlock4j.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class DatabaseDeadlockLogHandler implements DatabaseDeadlockHandler {
         ──────────────────────────────────────────
         """.formatted(
             event.getType(),
-            event.getTimestamp().toString(),
+            DateTimeUtil.formatIso(event.getTimestamp()),
             event.getExceptionName(),
             event.getSqlState(),
             event.getReason()

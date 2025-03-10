@@ -3,7 +3,6 @@ package com.gnnny.deadlock4j.core.handler.database;
 import com.gnnny.deadlock4j.core.detector.DeadlockDetector;
 import com.gnnny.deadlock4j.core.event.DatabaseDeadlockEvent;
 import com.gnnny.deadlock4j.core.exception.DatabaseDeadlockExceptionChecker;
-import com.gnnny.deadlock4j.core.exception.DatabaseDeadlockExceptionStore;
 import com.gnnny.deadlock4j.core.handler.DeadlockHandlerManager;
 
 import java.util.ArrayList;
@@ -27,7 +26,6 @@ public class DatabaseDeadlockHandlerManager implements DeadlockHandlerManager<Da
     @Override
     public void executeHandlers() {
         List<DatabaseDeadlockEvent> events = detector.detect();
-
         if (events == null || events.isEmpty()) {
             return;
         }
@@ -35,7 +33,5 @@ public class DatabaseDeadlockHandlerManager implements DeadlockHandlerManager<Da
         for (DatabaseDeadlockHandler handler : handlers) {
             handler.handle(events);
         }
-
-        DatabaseDeadlockExceptionStore.clear();
     }
 }

@@ -27,7 +27,7 @@ class DatabaseDeadlockExceptionStoreTest {
         DatabaseDeadlockExceptionStore.add(exception2);
 
         // then
-        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.peekAll();
+        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.getAll();
         assertThat(exceptions).hasSize(2);
         assertThat(exceptions).containsExactly(exception1, exception2);
     }
@@ -40,7 +40,7 @@ class DatabaseDeadlockExceptionStoreTest {
         }
 
         // when
-        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.peekAll();
+        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.getAll();
 
         // then
         assertThat(exceptions).hasSize(30);
@@ -56,7 +56,7 @@ class DatabaseDeadlockExceptionStoreTest {
         DatabaseDeadlockExceptionStore.add(exception2);
 
         // when
-        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.peekAll();
+        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.getAll();
 
         // then
         assertThat(exceptions).containsExactly(exception1, exception2);
@@ -69,7 +69,7 @@ class DatabaseDeadlockExceptionStoreTest {
 
         // when
         DatabaseDeadlockExceptionStore.clear();
-        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.peekAll();
+        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.getAll();
 
         // then
         assertThat(exceptions).isEmpty();

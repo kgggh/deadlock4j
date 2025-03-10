@@ -59,7 +59,7 @@ class DatabaseDeadlockHandlerManagerTest {
         // then
         verify(handler1).handle(events);
         verify(handler2).handle(events);
-        assertThat(DatabaseDeadlockExceptionStore.peekAll()).isEmpty();
+        assertThat(DatabaseDeadlockExceptionStore.getAll()).isEmpty();
     }
 
     @Test
@@ -74,7 +74,7 @@ class DatabaseDeadlockHandlerManagerTest {
 
         // then
         verifyNoInteractions(handler1);
-        assertThat(DatabaseDeadlockExceptionStore.peekAll()).isEmpty();
+        assertThat(DatabaseDeadlockExceptionStore.getAll()).isEmpty();
     }
 
     @Test
@@ -91,7 +91,7 @@ class DatabaseDeadlockHandlerManagerTest {
         // then
         verifyNoInteractions(handler1);
         verifyNoInteractions(handler2);
-        assertThat(DatabaseDeadlockExceptionStore.peekAll()).isEmpty();
+        assertThat(DatabaseDeadlockExceptionStore.getAll()).isEmpty();
     }
 }
 

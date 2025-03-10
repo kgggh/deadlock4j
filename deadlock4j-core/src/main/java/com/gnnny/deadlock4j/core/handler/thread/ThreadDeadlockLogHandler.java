@@ -1,6 +1,7 @@
 package com.gnnny.deadlock4j.core.handler.thread;
 
 import com.gnnny.deadlock4j.core.event.ThreadDeadlockEvent;
+import com.gnnny.deadlock4j.util.DateTimeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,15 +26,15 @@ public class ThreadDeadlockLogHandler implements ThreadDeadlockHandler {
         
         [DEADLOCK DETECTED]
         ──────────────────────────────────────────
-        Type        : %s
-        Timestamp   : %s
-        Thread Name : %s
-        Thread ID   : %d
-        Thread State: %s
+        Type           : %s
+        Timestamp      : %s
+        Thread Name    : %s
+        Thread ID      : %d
+        Thread State   : %s
         ──────────────────────────────────────────
         """.formatted(
             event.getType(),
-            event.getTimestamp().toString(),
+            DateTimeUtil.formatIso(event.getTimestamp()),
             event.getThreadName(),
             event.getThreadId(),
             event.getThreadState()

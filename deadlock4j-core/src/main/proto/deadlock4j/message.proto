@@ -1,7 +1,5 @@
 syntax = "proto3";
 
-import "google/protobuf/timestamp.proto";
-
 option java_package = "com.deadlock4j.proto";
 option java_multiple_files = true;
 
@@ -16,14 +14,14 @@ message HeartbeatMessageProto {
 }
 
 message ThreadDeadlockEventProto {
-  google.protobuf.Timestamp timestamp = 1;
+  int64 timestamp = 1;
   string thread_name = 2;
   int64 thread_id = 3;
   string thread_state = 4;
 }
 
 message DatabaseDeadlockEventProto {
-  google.protobuf.Timestamp timestamp = 1;
+  int64 timestamp = 1;
   string exception_name = 2;
   string sql_state = 3;
   string reason = 4;

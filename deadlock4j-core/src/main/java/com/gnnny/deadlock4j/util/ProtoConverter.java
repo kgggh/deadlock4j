@@ -4,18 +4,8 @@ import com.deadlock4j.proto.*;
 import com.gnnny.deadlock4j.core.event.DatabaseDeadlockEvent;
 import com.gnnny.deadlock4j.core.event.DeadlockEvent;
 import com.gnnny.deadlock4j.core.event.ThreadDeadlockEvent;
-import com.google.protobuf.Timestamp;
-
-import java.time.Instant;
 
 public class ProtoConverter {
-
-    private static Timestamp toProtobufTimestamp(Instant instant) {
-        return Timestamp.newBuilder()
-            .setSeconds(instant.getEpochSecond())
-            .setNanos(instant.getNano())
-            .build();
-    }
 
     public static MessageProto createHeartbeatMessage() {
         return MessageProto.newBuilder()
@@ -29,7 +19,7 @@ public class ProtoConverter {
 
     public static ThreadDeadlockEventProto toProto(ThreadDeadlockEvent event) {
         return ThreadDeadlockEventProto.newBuilder()
-            .setTimestamp(toProtobufTimestamp(event.getTimestamp()))
+            .setTimestamp(event.getTimestamp())
             .setThreadName(event.getThreadName())
             .setThreadId(event.getThreadId())
             .setThreadState(event.getThreadState())
@@ -38,7 +28,7 @@ public class ProtoConverter {
 
     public static DatabaseDeadlockEventProto toProto(DatabaseDeadlockEvent event) {
         return DatabaseDeadlockEventProto.newBuilder()
-            .setTimestamp(toProtobufTimestamp(event.getTimestamp()))
+            .setTimestamp(event.getTimestamp())
             .setExceptionName(event.getExceptionName())
             .setSqlState(event.getSqlState())
             .setReason(event.getReason())
@@ -59,7 +49,6 @@ public class ProtoConverter {
         } else {
             throw new IllegalArgumentException("Unsupported DeadlockEvent type: " + event.getClass().getSimpleName());
         }
-
 
         return messageBuilder.build();
     }

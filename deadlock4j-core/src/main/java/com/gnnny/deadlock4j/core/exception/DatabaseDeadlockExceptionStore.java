@@ -1,26 +1,33 @@
 package com.gnnny.deadlock4j.core.exception;
 
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class DatabaseDeadlockExceptionStore {
-    private static final Queue<Throwable> recentDatabaseExceptions = new ConcurrentLinkedQueue<>();
     private static final int MAX_QUEUE_SIZE = 30;
+    private static final BlockingQueue<Throwable> recentDatabaseExceptions = new LinkedBlockingQueue<>(MAX_QUEUE_SIZE);
 
     public static void add(Throwable e) {
-        recentDatabaseExceptions.add(e);
-
-        while (recentDatabaseExceptions.size() > MAX_QUEUE_SIZE) {
+        if (!recentDatabaseExceptions.offer(e)) {
             recentDatabaseExceptions.poll();
+            recentDatabaseExceptions.offer(e);
         }
     }
 
-    public static List<Throwable> peekAll() {
+    public static List<Throwable> getAll() {
         return List.copyOf(recentDatabaseExceptions);
     }
 
     public static void clear() {
         recentDatabaseExceptions.clear();
+    }
+
+    public static Throwable next() {
+        return recentDatabaseExceptions.poll();
+    }
+
+    public static boolean isEmpty() {
+        return recentDatabaseExceptions.isEmpty();
     }
 }
