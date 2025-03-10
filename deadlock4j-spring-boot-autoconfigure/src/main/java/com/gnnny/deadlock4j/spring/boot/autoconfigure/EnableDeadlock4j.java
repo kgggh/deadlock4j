@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@Import(DeadlockBusterAutoConfig.class)
-public @interface EnableDeadlockBuster {
+@Import(Deadlock4jImportSelector.class)
+public @interface EnableDeadlock4j {
 }

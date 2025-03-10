@@ -8,8 +8,7 @@ import java.util.List;
 
 @Data
 @ConfigurationProperties(prefix = "deadlock-buster")
-public class DeadlockBusterProperties {
-    private boolean detectEnabled = true;
+public class Deadlock4jProperties {
     private boolean logEnabled = true;
     private String tcpServerIp = "127.0.0.1";
     private int tcpServerPort = 8282;
@@ -17,14 +16,6 @@ public class DeadlockBusterProperties {
     private int heartbeatInterval = 30000;
     private DeadlockBusterConfig.TransportType transportType = DeadlockBusterConfig.TransportType.NONE;
     private List<String> detectDatabaseExceptionClasses;
-
-    public boolean isDetectEnabled() {
-        return detectEnabled;
-    }
-
-    public void setDetectEnabled(boolean detectEnabled) {
-        this.detectEnabled = detectEnabled;
-    }
 
     public boolean isLogEnabled() {
         return logEnabled;

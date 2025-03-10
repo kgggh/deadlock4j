@@ -13,7 +13,6 @@ import com.gnnny.deadlock4j.core.transport.tcp.TcpEventSenderImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,10 +23,9 @@ import java.util.concurrent.ScheduledExecutorService;
 @Slf4j
 @RequiredArgsConstructor
 @Configuration(proxyBeanMethods = false)
-@EnableConfigurationProperties(DeadlockBusterProperties.class)
-@ConditionalOnProperty(prefix = "deadlock-buster", name = "detect-enabled", havingValue = "true", matchIfMissing = true)
-public class DeadlockBusterAutoConfig {
-    private final DeadlockBusterProperties properties;
+@EnableConfigurationProperties(Deadlock4jProperties.class)
+public class Deadlock4jAutoConfiguration {
+    private final Deadlock4jProperties properties;
 
     @Bean
     @ConditionalOnMissingBean
@@ -35,7 +33,6 @@ public class DeadlockBusterAutoConfig {
         log.debug("Initializing DeadlockBusterConfig with properties: {}", properties);
 
         return new DeadlockBusterConfig(
-            properties.isDetectEnabled(),
             properties.isLogEnabled(),
             properties.getTcpServerIp(),
             properties.getTcpServerPort(),
@@ -46,7 +43,7 @@ public class DeadlockBusterAutoConfig {
         );
     }
 
-    @Bean(name = "deadlockTaskScheduler")
+    @Bean
     @ConditionalOnMissingBean(name = "deadlockTaskScheduler")
     public ThreadPoolTaskScheduler deadlockTaskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
@@ -57,20 +54,20 @@ public class DeadlockBusterAutoConfig {
         return scheduler;
     }
 
-    @Bean(name = "deadlockDetectionScheduler")
-    @ConditionalOnMissingBean(name = "deadlockDetectionScheduler")
+    @Bean
+    @ConditionalOnMissingBean
     public ScheduledExecutorService deadlockDetectionScheduler(ThreadPoolTaskScheduler deadlockTaskScheduler) {
         return deadlockTaskScheduler.getScheduledExecutor();
     }
 
-    @Bean(name = "heartbeatScheduler")
-    @ConditionalOnMissingBean(name = "heartbeatScheduler")
+    @Bean
+    @ConditionalOnMissingBean
     public ScheduledExecutorService heartbeatScheduler(ThreadPoolTaskScheduler deadlockTaskScheduler) {
         return deadlockTaskScheduler.getScheduledExecutor();
     }
 
-    @Bean(name = "connectionManagerScheduler")
-    @ConditionalOnMissingBean(name = "connectionManagerScheduler")
+    @Bean
+    @ConditionalOnMissingBean
     public ScheduledExecutorService connectionManagerScheduler(ThreadPoolTaskScheduler deadlockTaskScheduler) {
         return deadlockTaskScheduler.getScheduledExecutor();
     }
@@ -83,10 +80,9 @@ public class DeadlockBusterAutoConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public ConnectionManager connectionManager(
-        DeadlockBusterConfig config,
-        ScheduledExecutorService connectionManagerScheduler
-    ) {
+    public ConnectionManager connectionManager(DeadlockBusterConfig config,
+                                               ScheduledExecutorService connectionManagerScheduler)
+    {
         return new ConnectionManager(config.getTcpServerIp(), config.getTcpServerPort(), connectionManagerScheduler);
     }
 
@@ -122,18 +118,25 @@ public class DeadlockBusterAutoConfig {
         ScheduledExecutorService deadlockDetectionScheduler,
         ScheduledExecutorService heartbeatScheduler
     ) {
-        return Deadlock4jInitializer.getInstance(config, eventSendStrategy, connectionManager, deadlockDetectionScheduler, heartbeatScheduler);
+        return Deadlock4jInitializer.getInstance(config, eventSendStrategy, connectionManager, deadlockDetectionScheduler,
+            heartbeatScheduler);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DeadlockBusterLifecycle deadlockBusterLifecycle(Deadlock4jInitializer deadlock4jInitializer) {
-        return new DeadlockBusterLifecycle(deadlock4jInitializer);
+    public Deadlock4jLifecycle deadlockBusterLifecycle(Deadlock4jInitializer deadlock4jInitializer) {
+        return new Deadlock4jLifecycle(deadlock4jInitializer);
     }
 
-
     @Bean
+    @ConditionalOnMissingBean
     public DatabaseDeadlockExceptionChecker databaseDeadlockExceptionChecker(DeadlockBusterConfig config) {
         return new DatabaseDeadlockExceptionChecker(config.getDetectDatabaseExceptionClasses());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Deadlock4jDetectAspect deadlockDetectAspect(DatabaseDeadlockExceptionChecker databaseDeadlockExceptionChecker) {
+        return new Deadlock4jDetectAspect(databaseDeadlockExceptionChecker);
     }
 }
