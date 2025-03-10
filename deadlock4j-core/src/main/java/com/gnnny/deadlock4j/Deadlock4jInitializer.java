@@ -77,10 +77,11 @@ public class Deadlock4jInitializer {
             return;
         }
 
-        if (!config.isDetectEnabled()) {
-            LOG.info("DeadlockBuster is disabled.");
-            return;
+        long monitoringInterval = config.getMonitorInterval();
+        if (monitoringInterval < 500) {
+            throw new IllegalArgumentException("monitoringInterval interval must be greater than 500. Given: " + monitoringInterval);
         }
+
 
         LOG.info("DeadlockBuster is starting...");
 
@@ -96,12 +97,6 @@ public class Deadlock4jInitializer {
 
         if(heartbeatManager != null) {
             heartbeatManager.start();
-        }
-
-        long monitoringInterval = config.getMonitorInterval();
-
-        if (monitoringInterval < 500) {
-            throw new IllegalArgumentException("monitoringInterval interval must be greater than 500. Given: " + monitoringInterval);
         }
 
         deadlockDetectionScheduler.scheduleWithFixedDelay(() -> {

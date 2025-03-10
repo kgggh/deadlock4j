@@ -7,7 +7,6 @@ public class DeadlockBusterConfig {
         TCP, QUEUE, NONE
     }
 
-    private boolean detectEnabled;
     private boolean logEnabled;
     private String tcpServerIp;
     private int tcpServerPort;
@@ -16,8 +15,7 @@ public class DeadlockBusterConfig {
     private TransportType transportType;
     private List<String> detectDatabaseExceptionClasses;
 
-    public DeadlockBusterConfig(boolean detectEnabled, boolean logEnabled, String tcpServerIp, int tcpServerPort, int monitorInterval, int heartbeatInterval, TransportType transportType, List<String> detectDatabaseExceptionClasses) {
-        this.detectEnabled = detectEnabled;
+    public DeadlockBusterConfig(boolean logEnabled, String tcpServerIp, int tcpServerPort, int monitorInterval, int heartbeatInterval, TransportType transportType, List<String> detectDatabaseExceptionClasses) {
         this.logEnabled = logEnabled;
         this.tcpServerIp = tcpServerIp;
         this.tcpServerPort = tcpServerPort;
@@ -25,14 +23,6 @@ public class DeadlockBusterConfig {
         this.heartbeatInterval = heartbeatInterval;
         this.transportType = transportType;
         this.detectDatabaseExceptionClasses = detectDatabaseExceptionClasses;
-    }
-
-    public boolean isDetectEnabled() {
-        return detectEnabled;
-    }
-
-    public void setDetectEnabled(boolean detectEnabled) {
-        this.detectEnabled = detectEnabled;
     }
 
     public boolean isLogEnabled() {
@@ -94,8 +84,7 @@ public class DeadlockBusterConfig {
     @Override
     public String toString() {
         return "DeadlockBusterConfig{" +
-            "detectEnabled=" + detectEnabled +
-            ", logEnabled=" + logEnabled +
+            "logEnabled=" + logEnabled +
             ", tcpServerIp='" + tcpServerIp + '\'' +
             ", tcpServerPort=" + tcpServerPort +
             ", monitorInterval=" + monitorInterval +
