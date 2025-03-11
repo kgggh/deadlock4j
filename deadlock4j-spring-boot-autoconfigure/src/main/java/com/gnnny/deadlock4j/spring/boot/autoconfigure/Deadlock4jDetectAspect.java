@@ -1,7 +1,7 @@
 package com.gnnny.deadlock4j.spring.boot.autoconfigure;
 
-import com.gnnny.deadlock4j.core.exception.DatabaseDeadlockExceptionChecker;
-import com.gnnny.deadlock4j.core.exception.DatabaseDeadlockExceptionStore;
+import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionChecker;
+import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionStore;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

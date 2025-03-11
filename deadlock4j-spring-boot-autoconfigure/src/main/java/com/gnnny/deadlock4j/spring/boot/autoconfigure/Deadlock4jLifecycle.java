@@ -1,6 +1,6 @@
 package com.gnnny.deadlock4j.spring.boot.autoconfigure;
 
-import com.gnnny.deadlock4j.Deadlock4jInitializer;
+import com.gnnny.deadlock4j.bootstrap.Deadlock4jInitializer;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.context.annotation.Configuration;

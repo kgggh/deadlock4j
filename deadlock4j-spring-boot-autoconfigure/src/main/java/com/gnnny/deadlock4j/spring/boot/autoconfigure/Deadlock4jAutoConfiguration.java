@@ -1,15 +1,15 @@
 package com.gnnny.deadlock4j.spring.boot.autoconfigure;
 
-import com.gnnny.deadlock4j.Deadlock4jInitializer;
+import com.gnnny.deadlock4j.bootstrap.Deadlock4jInitializer;
 import com.gnnny.deadlock4j.config.DeadlockBusterConfig;
-import com.gnnny.deadlock4j.core.exception.DatabaseDeadlockExceptionChecker;
-import com.gnnny.deadlock4j.core.transport.EventSendStrategy;
-import com.gnnny.deadlock4j.core.transport.NoOperationEventSendStrategy;
-import com.gnnny.deadlock4j.core.transport.queue.QueueEventSendStrategy;
-import com.gnnny.deadlock4j.core.transport.queue.QueueEventSender;
-import com.gnnny.deadlock4j.core.transport.tcp.ConnectionManager;
-import com.gnnny.deadlock4j.core.transport.tcp.TcpEventSendStrategy;
-import com.gnnny.deadlock4j.core.transport.tcp.TcpEventSenderImpl;
+import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionChecker;
+import com.gnnny.deadlock4j.transport.EventSendStrategy;
+import com.gnnny.deadlock4j.transport.NoOperationEventSendStrategy;
+import com.gnnny.deadlock4j.transport.queue.QueueEventSendStrategy;
+import com.gnnny.deadlock4j.transport.queue.QueueEventSender;
+import com.gnnny.deadlock4j.transport.tcp.ConnectionManager;
+import com.gnnny.deadlock4j.transport.tcp.TcpEventSendStrategy;
+import com.gnnny.deadlock4j.transport.tcp.TcpEventSenderImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
