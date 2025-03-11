@@ -1,3 +1,5 @@
-rootProject.name = 'deadlock-buster'
+rootProject.name = 'deadlock4j'
 
 include 'deadlock4j-core'
+include 'deadlock4j-spring-boot-autoconfigure'
+include 'deadlock4j-spring-boot-starter'
