@@ -1,7 +1,7 @@
-package com.gnnny.deadlock4j.transport.tcp;
+package com.gnnny.deadlock4j.transport.heartbeat;
 
-import com.gnnny.deadlock4j.protobuf.MessageProto;
-import com.gnnny.deadlock4j.protobuf.ProtoConverter;
+import com.gnnny.deadlock4j.config.Deadlock4jConfig;
+import com.gnnny.deadlock4j.transport.tcp.TcpConnectionManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -12,25 +12,28 @@ import static org.mockito.Mockito.*;
 
 class HeartbeatManagerTest {
 
-    private ConnectionManager connectionManager;
+    private TcpConnectionManager tcpConnectionManager;
     private HeartbeatManager heartbeatManager;
-    private TcpEventSender tcpEventSender;
+    private HeartbeatSender heartbeatSender;
     private ScheduledExecutorService scheduler;
+    private Deadlock4jConfig config;
 
     @BeforeEach
     void set_up() {
-        connectionManager = mock(ConnectionManager.class);
-        tcpEventSender = mock(TcpEventSender.class);
+        tcpConnectionManager = mock(TcpConnectionManager.class);
+        heartbeatSender = mock(HeartbeatSender.class);
         scheduler = mock(ScheduledExecutorService.class);
-
-        heartbeatManager = new HeartbeatManager(1000, tcpEventSender, connectionManager, scheduler);
+        scheduler = mock(ScheduledExecutorService.class);
+        config = mock(Deadlock4jConfig.class);
+        when(config.getInstanceId()).thenReturn("instanceId");
+        heartbeatManager = new HeartbeatManager(1000, heartbeatSender, tcpConnectionManager, scheduler);
     }
 
     @Test
     void should_attempt_connection_when_not_connected() throws InterruptedException {
         // given
-        doReturn(false).when(connectionManager).isConnected();
-        doReturn(false).when(connectionManager).connect();
+        doReturn(false).when(tcpConnectionManager).isConnected();
+        doReturn(false).when(tcpConnectionManager).connect();
 
         doAnswer(invocation -> {
             Runnable task = invocation.getArgument(0);
@@ -43,16 +46,14 @@ class HeartbeatManagerTest {
         TimeUnit.MILLISECONDS.sleep(1100);
 
         // then
-        verify(connectionManager, times(1)).connect();
+        verify(tcpConnectionManager, times(1)).connect();
     }
 
 
     @Test
     void should_send_heartbeat_when_connected() throws InterruptedException {
         // given
-        doReturn(true).when(connectionManager).isConnected();
-
-        MessageProto expected_message = ProtoConverter.createHeartbeatMessage();
+        doReturn(true).when(tcpConnectionManager).isConnected();
 
         doAnswer(invocation -> {
             Runnable task = invocation.getArgument(0);
@@ -65,14 +66,14 @@ class HeartbeatManagerTest {
         TimeUnit.MILLISECONDS.sleep(1100);
 
         // then
-        verify(tcpEventSender, times(1)).send(expected_message);
+        verify(heartbeatSender, times(1)).send();
     }
 
     @Test
     void should_stop_scheduler_on_stop() throws InterruptedException {
         // given
         doNothing().when(scheduler).shutdown();
-        doReturn(true).when(scheduler).awaitTermination(5000, TimeUnit.MILLISECONDS);
+        doReturn(true).when(scheduler).awaitTermination(3000, TimeUnit.MILLISECONDS);
 
         // when
         heartbeatManager.stop();

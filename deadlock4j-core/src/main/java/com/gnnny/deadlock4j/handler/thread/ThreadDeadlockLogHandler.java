@@ -31,13 +31,27 @@ public class ThreadDeadlockLogHandler implements ThreadDeadlockHandler {
         Thread Name    : %s
         Thread ID      : %d
         Thread State   : %s
+        Blocked Count  : %d
+        Waited Count   : %d
+        Lock Name      : %s
+        Lock Owner ID  : %d
+        Lock Owner Name: %s
+        ──────────────────────────────────────────
+        Stack Trace:
+        %s
         ──────────────────────────────────────────
         """.formatted(
             event.getType(),
             DateTimeUtil.formatIso(event.getTimestamp()),
             event.getThreadName(),
             event.getThreadId(),
-            event.getThreadState()
+            event.getThreadState(),
+            event.getBlockedCount(),
+            event.getWaitedCount(),
+            event.getLockName(),
+            event.getLockOwnerId(),
+            event.getLockOwnerName(),
+            event.getStackTrace()
         );
     }
 }

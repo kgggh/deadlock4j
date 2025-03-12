@@ -6,6 +6,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ThreadDeadlockDetector implements DeadlockDetector<ThreadDeadlockEvent> {
     private final ThreadMXBean threadMXBean;
@@ -30,16 +31,35 @@ public class ThreadDeadlockDetector implements DeadlockDetector<ThreadDeadlockEv
                 continue;
             }
 
-            ThreadInfo threadInfo = threadMXBean.getThreadInfo(threadId);
-            if(threadInfo != null) {
-                detectedEvents.add(new ThreadDeadlockEvent(
-                    threadInfo.getThreadName(),
-                    threadInfo.getThreadId(),
-                    threadInfo.getThreadState().name()
-                ));
+            ThreadInfo threadInfo = threadMXBean.getThreadInfo(threadId, Integer.MAX_VALUE);
+            if (threadInfo != null) {
+                detectedDeadlockThreads.add(threadId);
+                ThreadDeadlockEvent event = convertToEvent(threadInfo);
+                detectedEvents.add(event);
             }
         }
 
         return detectedEvents;
+    }
+
+    private ThreadDeadlockEvent convertToEvent(ThreadInfo threadInfo) {
+        return new ThreadDeadlockEvent(
+            System.currentTimeMillis(),
+            threadInfo.getThreadName(),
+            threadInfo.getThreadId(),
+            threadInfo.getThreadState().toString(),
+            threadInfo.getBlockedCount(),
+            threadInfo.getWaitedCount(),
+            Optional.ofNullable(threadInfo.getLockName()).orElse("NONE"),
+            threadInfo.getLockOwnerId() != -1 ? threadInfo.getLockOwnerId() : -1,
+            Optional.ofNullable(threadInfo.getLockOwnerName()).orElse("NONE"),
+            formatStackTrace(threadInfo.getStackTrace())
+        );
+    }
+
+    private String formatStackTrace(StackTraceElement[] stackTrace) {
+        return Arrays.stream(stackTrace)
+            .map(StackTraceElement::toString)
+            .collect(Collectors.joining("\n"));
     }
 }

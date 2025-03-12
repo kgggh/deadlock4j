@@ -1,7 +1,6 @@
 package com.gnnny.deadlock4j.exception;
 
 import com.gnnny.deadlock4j.event.DatabaseDeadlockEvent;
-import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionChecker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -49,7 +48,7 @@ class DatabaseDeadlockExceptionCheckerTest {
         Throwable exception = new SQLException("Deadlock detected", "40001");
 
         // when
-        DatabaseDeadlockEvent event = checker.createDeadlockEvent(exception);
+        DatabaseDeadlockEvent event = checker.createDeadlockEvent(System.currentTimeMillis(), exception);
 
         // then
         assertThat(event).isNotNull();

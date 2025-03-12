@@ -9,9 +9,9 @@ public abstract class DeadlockEvent {
     private final DeadlockType type;
     private final long timestamp;
 
-    protected DeadlockEvent(DeadlockType type) {
+    protected DeadlockEvent(DeadlockType type, long timestamp) {
         this.type = type;
-        this.timestamp = System.currentTimeMillis();
+        this.timestamp = timestamp;
     }
 
     public DeadlockType getType() {

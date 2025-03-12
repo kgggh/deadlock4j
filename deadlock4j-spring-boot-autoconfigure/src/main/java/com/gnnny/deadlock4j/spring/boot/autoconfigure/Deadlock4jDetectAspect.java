@@ -20,7 +20,6 @@ public class Deadlock4jDetectAspect {
             if(checker.isDeadlockException(e)) {
                 DatabaseDeadlockExceptionStore.add(e);
             }
-
             throw e;
         }
     }

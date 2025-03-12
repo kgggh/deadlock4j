@@ -19,10 +19,10 @@ public class DatabaseDeadlockDetector implements DeadlockDetector<DatabaseDeadlo
         List<DatabaseDeadlockEvent> detectedEvents = new ArrayList<>();
 
         while (!DatabaseDeadlockExceptionStore.isEmpty()) {
-            Throwable recentException = DatabaseDeadlockExceptionStore.next();
+            DatabaseDeadlockExceptionStore.DatabaseDeadlockSnapshot deadlockSnapshot = DatabaseDeadlockExceptionStore.next();
 
-            if (recentException != null && exceptionChecker.isDeadlockException(recentException)) {
-                detectedEvents.add(exceptionChecker.createDeadlockEvent(recentException));
+            if (deadlockSnapshot != null && exceptionChecker.isDeadlockException(deadlockSnapshot.getException())) {
+                detectedEvents.add(exceptionChecker.createDeadlockEvent(deadlockSnapshot.getTimestamp(), deadlockSnapshot.getException()));
             }
         }
 

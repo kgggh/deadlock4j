@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.gnnny.deadlock4j.event.DatabaseDeadlockEvent;
-import com.gnnny.deadlock4j.handler.database.DatabaseDeadlockLogHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
@@ -32,6 +31,7 @@ class DatabaseDeadlockLogHandlerTest {
     void should_log_deadlock_event_when_detected() {
         // given
         DatabaseDeadlockEvent event = new DatabaseDeadlockEvent(
+            System.currentTimeMillis(),
             "SQLTransactionRollbackException",
             "40001",
             "Deadlock detected"

@@ -2,8 +2,6 @@ package com.gnnny.deadlock4j.handler.thread;
 
 import com.gnnny.deadlock4j.detector.ThreadDeadlockDetector;
 import com.gnnny.deadlock4j.event.ThreadDeadlockEvent;
-import com.gnnny.deadlock4j.handler.thread.ThreadDeadlockHandler;
-import com.gnnny.deadlock4j.handler.thread.ThreadDeadlockHandlerManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -43,7 +41,18 @@ class ThreadDeadlockHandlerManagerTest {
     @Test
     void execute_handlers_should_call_all_handlers_when_deadlock_detected() {
         // given
-        ThreadDeadlockEvent event = new ThreadDeadlockEvent("test-thread", 123L, "BLOCKED");
+        ThreadDeadlockEvent event = new ThreadDeadlockEvent(
+            System.currentTimeMillis(),
+            "thread-1",
+            1L,
+            "BLOCKED",
+            5,
+            3,
+            "java.util.concurrent.locks.ReentrantLock",
+            102L,
+            "thread-2",
+            "stackTrace info..."
+        );
         List<ThreadDeadlockEvent> events = List.of(event);
 
         when(detector.detect()).thenReturn(events);
@@ -76,7 +85,18 @@ class ThreadDeadlockHandlerManagerTest {
     @Test
     void execute_handlers_should_do_nothing_when_no_handlers_registered() {
         // given
-        ThreadDeadlockEvent event = new ThreadDeadlockEvent("test-thread", 123L, "BLOCKED");
+        ThreadDeadlockEvent event = new ThreadDeadlockEvent(
+            System.currentTimeMillis(),
+            "thread-1",
+            1L,
+            "BLOCKED",
+            5,
+            3,
+            "java.util.concurrent.locks.ReentrantLock",
+            102L,
+            "thread-2",
+            "stackTrace info..."
+        );
         List<ThreadDeadlockEvent> events = List.of(event);
 
         when(detector.detect()).thenReturn(events);

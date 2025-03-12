@@ -1,6 +1,5 @@
 package com.gnnny.deadlock4j.exception;
 
-import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionStore;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,7 +27,9 @@ class DatabaseDeadlockExceptionStoreTest {
         DatabaseDeadlockExceptionStore.add(exception2);
 
         // then
-        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.getAll();
+        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.getAll().stream()
+            .map(DatabaseDeadlockExceptionStore.DatabaseDeadlockSnapshot::getException)
+            .toList();
         assertThat(exceptions).hasSize(2);
         assertThat(exceptions).containsExactly(exception1, exception2);
     }
@@ -41,7 +42,7 @@ class DatabaseDeadlockExceptionStoreTest {
         }
 
         // when
-        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.getAll();
+        List<DatabaseDeadlockExceptionStore.DatabaseDeadlockSnapshot> exceptions = DatabaseDeadlockExceptionStore.getAll();
 
         // then
         assertThat(exceptions).hasSize(30);
@@ -57,7 +58,9 @@ class DatabaseDeadlockExceptionStoreTest {
         DatabaseDeadlockExceptionStore.add(exception2);
 
         // when
-        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.getAll();
+        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.getAll().stream()
+            .map(DatabaseDeadlockExceptionStore.DatabaseDeadlockSnapshot::getException)
+            .toList();
 
         // then
         assertThat(exceptions).containsExactly(exception1, exception2);
@@ -70,7 +73,7 @@ class DatabaseDeadlockExceptionStoreTest {
 
         // when
         DatabaseDeadlockExceptionStore.clear();
-        List<Throwable> exceptions = DatabaseDeadlockExceptionStore.getAll();
+        List<DatabaseDeadlockExceptionStore.DatabaseDeadlockSnapshot> exceptions = DatabaseDeadlockExceptionStore.getAll();
 
         // then
         assertThat(exceptions).isEmpty();

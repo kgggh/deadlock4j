@@ -1,18 +1,21 @@
 package com.gnnny.deadlock4j.handler.database;
 
+import com.gnnny.deadlock4j.config.Deadlock4jConfig;
 import com.gnnny.deadlock4j.event.DatabaseDeadlockEvent;
 import com.gnnny.deadlock4j.event.DeadlockEvent;
-import com.gnnny.deadlock4j.transport.EventSendStrategy;
+import com.gnnny.deadlock4j.transport.DeadlockEventPayload;
+import com.gnnny.deadlock4j.transport.EventSender;
 
 import java.util.List;
 
 public class DatabaseDeadlockEventSendHandler implements DatabaseDeadlockHandler {
-    private final EventSendStrategy sendStrategy;
+    private final EventSender sender;
+    private final Deadlock4jConfig config;
 
-    public DatabaseDeadlockEventSendHandler(EventSendStrategy sendStrategy) {
-        this.sendStrategy = sendStrategy;
+    public DatabaseDeadlockEventSendHandler(EventSender sender, Deadlock4jConfig config) {
+        this.sender = sender;
+        this.config = config;
     }
-
 
     @Override
     public void handle(List<DatabaseDeadlockEvent> events) {
@@ -21,7 +24,11 @@ public class DatabaseDeadlockEventSendHandler implements DatabaseDeadlockHandler
         }
 
         for (DeadlockEvent event : events) {
-            sendStrategy.send(event);
+            sender.send(convertToPayload(event));
         }
+    }
+
+    private DeadlockEventPayload convertToPayload(DeadlockEvent event) {
+        return new DeadlockEventPayload(config.getInstanceId(), event);
     }
 }

@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
 import com.gnnny.deadlock4j.event.ThreadDeadlockEvent;
-import com.gnnny.deadlock4j.handler.thread.ThreadDeadlockLogHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
@@ -40,9 +39,16 @@ class ThreadDeadlockLogHandlerTest {
     void handle_logs_warning_when_deadlock_events_exist() {
         // given
         ThreadDeadlockEvent event = new ThreadDeadlockEvent(
-            "test-thread",
-            11,
-            "BLOCKED"
+            System.currentTimeMillis(),
+            "thread-1",
+            1L,
+            "BLOCKED",
+            5,
+            3,
+            "java.util.concurrent.locks.ReentrantLock",
+            102L,
+            "thread-2",
+            "stackTrace info..."
         );
 
         List<ThreadDeadlockEvent> events = List.of(event);

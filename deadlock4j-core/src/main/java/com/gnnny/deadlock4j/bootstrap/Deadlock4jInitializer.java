@@ -1,6 +1,6 @@
 package com.gnnny.deadlock4j.bootstrap;
 
-import com.gnnny.deadlock4j.config.DeadlockBusterConfig;
+import com.gnnny.deadlock4j.config.Deadlock4jConfig;
 import com.gnnny.deadlock4j.detector.DatabaseDeadlockDetector;
 import com.gnnny.deadlock4j.detector.ThreadDeadlockDetector;
 import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionChecker;
@@ -10,53 +10,50 @@ import com.gnnny.deadlock4j.handler.database.DatabaseDeadlockLogHandler;
 import com.gnnny.deadlock4j.handler.thread.ThreadDeadlockEventSendHandler;
 import com.gnnny.deadlock4j.handler.thread.ThreadDeadlockHandlerManager;
 import com.gnnny.deadlock4j.handler.thread.ThreadDeadlockLogHandler;
-import com.gnnny.deadlock4j.transport.EventSendStrategy;
-import com.gnnny.deadlock4j.transport.tcp.ConnectionManager;
-import com.gnnny.deadlock4j.transport.tcp.HeartbeatManager;
-import com.gnnny.deadlock4j.transport.tcp.TcpEventSendStrategy;
-import com.gnnny.deadlock4j.transport.tcp.TcpEventSenderImpl;
+import com.gnnny.deadlock4j.transport.ConnectionManager;
+import com.gnnny.deadlock4j.transport.EventSender;
+import com.gnnny.deadlock4j.transport.NoOpConnectionManager;
+import com.gnnny.deadlock4j.transport.heartbeat.HeartbeatManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class Deadlock4jInitializer {
     private static final Logger LOG = LoggerFactory.getLogger(Deadlock4jInitializer.class.getName());
-    private final DeadlockBusterConfig config;
+    private final Deadlock4jConfig config;
     private final ScheduledExecutorService deadlockDetectionScheduler;
     private final ThreadDeadlockHandlerManager threadHandlerManager;
     private final DatabaseDeadlockHandlerManager databaseHandlerManager;
-    private HeartbeatManager heartbeatManager;
-    private final EventSendStrategy eventSendStrategy;
+    private final HeartbeatManager heartbeatManager;
+    private final EventSender eventSender;
     private volatile boolean started = false;
 
-    protected Deadlock4jInitializer(DeadlockBusterConfig config, EventSendStrategy eventSendStrategy, ConnectionManager connectionManager, ScheduledExecutorService deadlockDetectionScheduler, ScheduledExecutorService heartbeatScheduler) {
+    protected Deadlock4jInitializer(Deadlock4jConfig config,
+                                    EventSender eventSender,
+                                    ScheduledExecutorService deadlockDetectionScheduler,
+                                    HeartbeatManager heartbeatManager) {
         this.config = Objects.requireNonNull(config, "DeadlockBusterConfig must not be null");
-        this.eventSendStrategy = Objects.requireNonNull(eventSendStrategy, "DeadlockEventSendStrategy must not be null");
+        this.eventSender = Objects.requireNonNull(eventSender, "DeadlockEventSendStrategy must not be null");
         this.threadHandlerManager = new ThreadDeadlockHandlerManager(new ThreadDeadlockDetector());
         this.databaseHandlerManager = new DatabaseDeadlockHandlerManager(
             new DatabaseDeadlockDetector(new DatabaseDeadlockExceptionChecker(config.getDetectDatabaseExceptionClasses())));
         this.deadlockDetectionScheduler = deadlockDetectionScheduler;
-
-        if(config.getTransportType() == DeadlockBusterConfig.TransportType.TCP) {
-            this.heartbeatManager = new HeartbeatManager(
-                config.getHeartbeatInterval(),
-                new TcpEventSenderImpl(connectionManager),
-                connectionManager,
-                heartbeatScheduler
-            );
-        }
+        this.heartbeatManager = heartbeatManager;
     }
 
     private static class InstanceHolder {
         private static Deadlock4jInitializer instance;
 
-        static void initialize(DeadlockBusterConfig config, EventSendStrategy eventSendStrategy, ConnectionManager connectionManager, ScheduledExecutorService deadlockDetectionScheduler, ScheduledExecutorService heartbeatScheduler) {
+        static void initialize(Deadlock4jConfig config,
+                               EventSender eventSender,
+                               ScheduledExecutorService deadlockDetectionScheduler,
+                               HeartbeatManager heartbeatManager
+                               ) {
             if (instance == null) {
-                instance = new Deadlock4jInitializer(config, eventSendStrategy, connectionManager, deadlockDetectionScheduler, heartbeatScheduler);
+                instance = new Deadlock4jInitializer(config, eventSender, deadlockDetectionScheduler, heartbeatManager);
             }
         }
 
@@ -65,8 +62,11 @@ public class Deadlock4jInitializer {
         }
     }
 
-    public static Deadlock4jInitializer getInstance(DeadlockBusterConfig config, EventSendStrategy eventSendStrategy, ConnectionManager connectionManager, ScheduledExecutorService deadlockDetectionScheduler, ScheduledExecutorService heartbeatScheduler) {
-        InstanceHolder.initialize(config, eventSendStrategy, connectionManager, deadlockDetectionScheduler, heartbeatScheduler);
+    public static Deadlock4jInitializer getInstance(Deadlock4jConfig config,
+                                                    EventSender eventSender,
+                                                    ScheduledExecutorService deadlockDetectionScheduler,
+                                                    HeartbeatManager heartbeatManager) {
+        InstanceHolder.initialize(config, eventSender, deadlockDetectionScheduler, heartbeatManager);
 
         return InstanceHolder.getInstance();
     }
@@ -90,12 +90,12 @@ public class Deadlock4jInitializer {
             databaseHandlerManager.registerHandler(new DatabaseDeadlockLogHandler());
         }
 
-        if (config.getTransportType() != null && config.getTransportType() != DeadlockBusterConfig.TransportType.NONE) {
-            threadHandlerManager.registerHandler(new ThreadDeadlockEventSendHandler(eventSendStrategy));
-            databaseHandlerManager.registerHandler(new DatabaseDeadlockEventSendHandler(eventSendStrategy));
+        if (config.getTransportType() != null && config.getTransportType() != Deadlock4jConfig.TransportType.NONE) {
+            threadHandlerManager.registerHandler(new ThreadDeadlockEventSendHandler(eventSender, config));
+            databaseHandlerManager.registerHandler(new DatabaseDeadlockEventSendHandler(eventSender, config));
         }
 
-        if(heartbeatManager != null) {
+        if(heartbeatManager != null && !(heartbeatManager.getConnectionManager() instanceof NoOpConnectionManager)) {
             heartbeatManager.start();
         }
 
@@ -130,23 +130,10 @@ public class Deadlock4jInitializer {
 
         LOG.info("Stopping DeadlockBuster...");
 
-        if (heartbeatManager != null) {
-            LOG.info("Stopping HeartbeatManager...");
-            heartbeatManager.stop();
-
-            ConnectionManager connectionManager = heartbeatManager.getConnectionManager();
-            if (connectionManager != null && eventSendStrategy instanceof TcpEventSendStrategy) {
-                LOG.info("Shutting down ConnectionManager...");
-                connectionManager.shutdown();
-            }
-        }
-
         deadlockDetectionScheduler.shutdown();
-
         try {
             if (!deadlockDetectionScheduler.awaitTermination(3000, TimeUnit.MILLISECONDS)) {
-                List<Runnable> droppedTasks = deadlockDetectionScheduler.shutdownNow();
-                LOG.warn("DeadlockBuster forced shutdown. {} tasks were dropped.", droppedTasks.size());
+                deadlockDetectionScheduler.shutdownNow();
             }
 
         } catch (InterruptedException e) {
@@ -155,10 +142,17 @@ public class Deadlock4jInitializer {
             Thread.currentThread().interrupt();
         }
 
+        if (heartbeatManager != null) {
+            heartbeatManager.stop();
+
+            ConnectionManager<?> connectionManager = heartbeatManager.getConnectionManager();
+            if (connectionManager != null && connectionManager.isConnected()) {
+                connectionManager.close();
+            }
+        }
+
         started = false;
 
-        LOG.info("DeadlockBuster has been stopped.");
+        LOG.info("DeadlockBuster stopped...");
     }
 }
-
-

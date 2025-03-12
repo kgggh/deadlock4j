@@ -1,20 +1,21 @@
 package com.gnnny.deadlock4j.spring.boot.autoconfigure;
 
-import com.gnnny.deadlock4j.config.DeadlockBusterConfig;
+import com.gnnny.deadlock4j.config.Deadlock4jConfig;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.List;
 
 @Data
-@ConfigurationProperties(prefix = "deadlock-buster")
+@ConfigurationProperties(prefix = "deadlock4j")
 public class Deadlock4jProperties {
     private boolean logEnabled = true;
+    private String instanceId = "application";
     private String tcpServerIp = "127.0.0.1";
     private int tcpServerPort = 8282;
     private int monitorInterval = 1000;
     private int heartbeatInterval = 30000;
-    private DeadlockBusterConfig.TransportType transportType = DeadlockBusterConfig.TransportType.NONE;
+    private Deadlock4jConfig.TransportType transportType = Deadlock4jConfig.TransportType.NONE;
     private List<String> detectDatabaseExceptionClasses;
 
     public boolean isLogEnabled() {
@@ -57,11 +58,11 @@ public class Deadlock4jProperties {
         this.heartbeatInterval = heartbeatInterval;
     }
 
-    public DeadlockBusterConfig.TransportType getTransportType() {
+    public Deadlock4jConfig.TransportType getTransportType() {
         return transportType;
     }
 
-    public void setTransportType(DeadlockBusterConfig.TransportType transportType) {
+    public void setTransportType(Deadlock4jConfig.TransportType transportType) {
         this.transportType = transportType;
     }
 

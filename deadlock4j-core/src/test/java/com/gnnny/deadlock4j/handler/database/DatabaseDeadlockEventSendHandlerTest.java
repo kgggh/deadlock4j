@@ -1,9 +1,9 @@
 package com.gnnny.deadlock4j.handler.database;
 
+import com.gnnny.deadlock4j.config.Deadlock4jConfig;
 import com.gnnny.deadlock4j.event.DatabaseDeadlockEvent;
-import com.gnnny.deadlock4j.event.DeadlockEvent;
-import com.gnnny.deadlock4j.handler.database.DatabaseDeadlockEventSendHandler;
-import com.gnnny.deadlock4j.transport.EventSendStrategy;
+import com.gnnny.deadlock4j.transport.DeadlockEventPayload;
+import com.gnnny.deadlock4j.transport.EventSender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -13,29 +13,31 @@ import static org.mockito.Mockito.*;
 
 class DatabaseDeadlockEventSendHandlerTest {
 
-    private EventSendStrategy sendStrategy;
+    private EventSender eventSender;
+    private Deadlock4jConfig config;
     private DatabaseDeadlockEventSendHandler handler;
 
     @BeforeEach
     void set_up() {
-        sendStrategy = mock(EventSendStrategy.class);
-        handler = new DatabaseDeadlockEventSendHandler(sendStrategy);
+        eventSender = mock(EventSender.class);
+        config = mock(Deadlock4jConfig.class);
+        when(config.getInstanceId()).thenReturn("instanceId");
+        handler = new DatabaseDeadlockEventSendHandler(eventSender, config);
     }
 
     @Test
     void should_send_all_deadlock_events() {
         // given
-        DeadlockEvent event1 = new DatabaseDeadlockEvent("SQLTransactionRollbackException", "40001", "Deadlock detected");
-        DeadlockEvent event2 = new DatabaseDeadlockEvent("DeadlockLoserDataAccessException", "40002", "Another deadlock");
+        DatabaseDeadlockEvent event1 = new DatabaseDeadlockEvent(System.currentTimeMillis(), "SQLTransactionRollbackException", "40001", "Deadlock detected");
+        DatabaseDeadlockEvent event2 = new DatabaseDeadlockEvent(System.currentTimeMillis(), "DeadlockLoserDataAccessException", "40002", "Another deadlock");
 
-        List<DatabaseDeadlockEvent> events = List.of((DatabaseDeadlockEvent) event1, (DatabaseDeadlockEvent) event2);
+        List<DatabaseDeadlockEvent> events = List.of(event1, event2);
 
         // when
         handler.handle(events);
 
         // then
-        verify(sendStrategy).send(event1);
-        verify(sendStrategy).send(event2);
+        verify(eventSender, times(2)).send(any(DeadlockEventPayload.class));
     }
 
     @Test
@@ -47,18 +49,16 @@ class DatabaseDeadlockEventSendHandlerTest {
         handler.handle(events);
 
         // then
-        verifyNoInteractions(sendStrategy);
+        verifyNoInteractions(eventSender);
     }
 
     @Test
     void should_not_send_when_events_are_null() {
         // given
-        List<DatabaseDeadlockEvent> events = null;
-
         // when
-        handler.handle(events);
+        handler.handle(null);
 
         // then
-        verifyNoInteractions(sendStrategy);
+        verifyNoInteractions(eventSender);
     }
 }

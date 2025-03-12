@@ -6,16 +6,18 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class DatabaseDeadlockExceptionStore {
     private static final int MAX_QUEUE_SIZE = 30;
-    private static final BlockingQueue<Throwable> recentDatabaseExceptions = new LinkedBlockingQueue<>(MAX_QUEUE_SIZE);
+    private static final BlockingQueue<DatabaseDeadlockSnapshot> recentDatabaseExceptions = new LinkedBlockingQueue<>(MAX_QUEUE_SIZE);
 
     public static void add(Throwable e) {
-        if (!recentDatabaseExceptions.offer(e)) {
+        DatabaseDeadlockSnapshot snapshot = new DatabaseDeadlockSnapshot(e);
+
+        if (!recentDatabaseExceptions.offer(snapshot)) {
             recentDatabaseExceptions.poll();
-            recentDatabaseExceptions.offer(e);
+            recentDatabaseExceptions.offer(snapshot);
         }
     }
 
-    public static List<Throwable> getAll() {
+    public static List<DatabaseDeadlockSnapshot> getAll() {
         return List.copyOf(recentDatabaseExceptions);
     }
 
@@ -23,11 +25,37 @@ public class DatabaseDeadlockExceptionStore {
         recentDatabaseExceptions.clear();
     }
 
-    public static Throwable next() {
+    public static DatabaseDeadlockSnapshot next() {
         return recentDatabaseExceptions.poll();
     }
 
     public static boolean isEmpty() {
         return recentDatabaseExceptions.isEmpty();
+    }
+
+    public static class DatabaseDeadlockSnapshot {
+        private final Throwable exception;
+        private final long timestamp;
+
+        public DatabaseDeadlockSnapshot(Throwable exception) {
+            this.exception = exception;
+            this.timestamp = System.currentTimeMillis();
+        }
+
+        public Throwable getException() {
+            return exception;
+        }
+
+        public long getTimestamp() {
+            return timestamp;
+        }
+
+        @Override
+        public String toString() {
+            return "DatabaseDeadlockSnapshot{" +
+                "exception=" + exception +
+                ", timestamp=" + timestamp +
+                '}';
+        }
     }
 }

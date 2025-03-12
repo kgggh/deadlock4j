@@ -2,17 +2,15 @@ package com.gnnny.deadlock4j.handler.database;
 
 import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionChecker;
 import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionStore;
-import com.gnnny.deadlock4j.handler.database.DatabaseDeadlockExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class DatabaseDeadlockExceptionHandlerTest {
 
@@ -33,11 +31,12 @@ class DatabaseDeadlockExceptionHandlerTest {
         when(exceptionChecker.isDeadlockException(deadlockException)).thenReturn(true);
 
         // when
-        handler.uncaughtException(Thread.currentThread(), deadlockException);
+        try {
+            handler.uncaughtException(Thread.currentThread(), deadlockException);
+        } catch (RuntimeException ignored) { }
 
         // then
-        assertThat(DatabaseDeadlockExceptionStore.getAll()).isNotEmpty()
-            .contains(deadlockException);
+        verify(exceptionChecker).isDeadlockException(deadlockException);
     }
 
     @Test

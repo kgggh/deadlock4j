@@ -2,12 +2,13 @@ package com.gnnny.deadlock4j.config;
 
 import java.util.List;
 
-public class DeadlockBusterConfig {
+public class Deadlock4jConfig {
     public enum TransportType {
         TCP, QUEUE, NONE
     }
 
     private boolean logEnabled;
+    private String instanceId;
     private String tcpServerIp;
     private int tcpServerPort;
     private int monitorInterval;
@@ -15,8 +16,9 @@ public class DeadlockBusterConfig {
     private TransportType transportType;
     private List<String> detectDatabaseExceptionClasses;
 
-    public DeadlockBusterConfig(boolean logEnabled, String tcpServerIp, int tcpServerPort, int monitorInterval, int heartbeatInterval, TransportType transportType, List<String> detectDatabaseExceptionClasses) {
+    public Deadlock4jConfig(boolean logEnabled, String instanceId, String tcpServerIp, int tcpServerPort, int monitorInterval, int heartbeatInterval, TransportType transportType, List<String> detectDatabaseExceptionClasses) {
         this.logEnabled = logEnabled;
+        this.instanceId = instanceId;
         this.tcpServerIp = tcpServerIp;
         this.tcpServerPort = tcpServerPort;
         this.monitorInterval = monitorInterval;
@@ -24,13 +26,21 @@ public class DeadlockBusterConfig {
         this.transportType = transportType;
         this.detectDatabaseExceptionClasses = detectDatabaseExceptionClasses;
     }
-
+    
     public boolean isLogEnabled() {
         return logEnabled;
     }
 
     public void setLogEnabled(boolean logEnabled) {
         this.logEnabled = logEnabled;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     public String getTcpServerIp() {
@@ -85,6 +95,7 @@ public class DeadlockBusterConfig {
     public String toString() {
         return "DeadlockBusterConfig{" +
             "logEnabled=" + logEnabled +
+            ", instanceId='" + instanceId + '\'' +
             ", tcpServerIp='" + tcpServerIp + '\'' +
             ", tcpServerPort=" + tcpServerPort +
             ", monitorInterval=" + monitorInterval +

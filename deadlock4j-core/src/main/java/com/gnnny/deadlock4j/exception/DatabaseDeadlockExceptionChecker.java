@@ -54,8 +54,9 @@ public class DatabaseDeadlockExceptionChecker {
         return deadlockExceptions.stream().anyMatch(ex -> ex.isAssignableFrom(e.getClass()));
     }
 
-    public DatabaseDeadlockEvent createDeadlockEvent(Throwable e) {
+    public DatabaseDeadlockEvent createDeadlockEvent(long timstamp, Throwable e) {
         return new DatabaseDeadlockEvent(
+            timstamp,
             e.getClass().getSimpleName(),
             extractSqlState(e),
             e.getMessage()

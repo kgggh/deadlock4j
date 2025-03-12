@@ -5,8 +5,8 @@ public class DatabaseDeadlockEvent extends DeadlockEvent {
     private final String sqlState;
     private final String reason;
 
-    public DatabaseDeadlockEvent(String exceptionName, String sqlState, String reason) {
-        super(DeadlockType.DATABASE);
+    public DatabaseDeadlockEvent(long timestamp, String exceptionName, String sqlState, String reason) {
+        super(DeadlockType.DATABASE, timestamp);
         this.exceptionName = exceptionName;
         this.sqlState = sqlState;
         this.reason = reason;

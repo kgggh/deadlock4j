@@ -3,8 +3,6 @@ package com.gnnny.deadlock4j.handler.database;
 import com.gnnny.deadlock4j.detector.DeadlockDetector;
 import com.gnnny.deadlock4j.event.DatabaseDeadlockEvent;
 import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionStore;
-import com.gnnny.deadlock4j.handler.database.DatabaseDeadlockHandler;
-import com.gnnny.deadlock4j.handler.database.DatabaseDeadlockHandlerManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +45,7 @@ class DatabaseDeadlockHandlerManagerTest {
     @Test
     void should_execute_all_handlers_when_deadlock_detected() {
         // given
-        DatabaseDeadlockEvent event = new DatabaseDeadlockEvent("SQLTransactionRollbackException", "40001", "Deadlock detected");
+        DatabaseDeadlockEvent event = new DatabaseDeadlockEvent(System.currentTimeMillis(), "SQLTransactionRollbackException", "40001", "Deadlock detected");
         List<DatabaseDeadlockEvent> events = List.of(event);
 
         when(detector.detect()).thenReturn(events);
@@ -82,7 +80,7 @@ class DatabaseDeadlockHandlerManagerTest {
     @Test
     void should_not_execute_handlers_when_no_handlers_registered() {
         // given
-        DatabaseDeadlockEvent event = new DatabaseDeadlockEvent("SQLTransactionRollbackException", "40001", "Deadlock detected");
+        DatabaseDeadlockEvent event = new DatabaseDeadlockEvent(System.currentTimeMillis(), "SQLTransactionRollbackException", "40001", "Deadlock detected");
         List<DatabaseDeadlockEvent> events = List.of(event);
 
         when(detector.detect()).thenReturn(events);
