@@ -16,12 +16,17 @@ import com.gnnny.deadlock4j.transport.tcp.TcpConnectionManager;
 import com.gnnny.deadlock4j.transport.tcp.TcpEventSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.Advisor;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,6 +38,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @EnableConfigurationProperties(Deadlock4jProperties.class)
 public class Deadlock4jAutoConfiguration {
     private final Deadlock4jProperties properties;
+    private final ApplicationContext context;
 
     @Bean
     @ConditionalOnMissingBean
@@ -75,8 +81,8 @@ public class Deadlock4jAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public EventSender eventSender(Deadlock4jConfig config, ConnectionManager<?> connectionManager) {
-        return switch (config.getTransportType()) {
+    public EventSender eventSender(ConnectionManager<?> connectionManager) {
+        return switch (properties.getTransportType()) {
             case TCP ->  new TcpEventSender((TcpConnectionManager) connectionManager);
             case QUEUE -> new QueueEventSender();
             case NONE -> new NoOpEventSender();
@@ -95,12 +101,11 @@ public class Deadlock4jAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public HeartbeatManager heartbeatManager(Deadlock4jConfig config,
-                                             ConnectionManager<?> connectionManager,
+    public HeartbeatManager heartbeatManager(ConnectionManager<?> connectionManager,
                                              ScheduledExecutorService heartbeatScheduler,
                                              HeartbeatSender heartbeatSender) {
         return new HeartbeatManager(
-            config.getHeartbeatInterval(),
+            properties.getHeartbeatInterval(),
             heartbeatSender,
             connectionManager,
             heartbeatScheduler
@@ -123,13 +128,23 @@ public class Deadlock4jAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public DatabaseDeadlockExceptionChecker databaseDeadlockExceptionChecker(Deadlock4jConfig config) {
-        return new DatabaseDeadlockExceptionChecker(config.getDetectDatabaseExceptionClasses());
+    public DatabaseDeadlockExceptionChecker databaseDeadlockExceptionChecker() {
+        return new DatabaseDeadlockExceptionChecker(properties.getDetectDatabaseExceptionClasses());
+    }
+
+    private String findBasePackage() {
+        return Arrays.stream(context.getBeanNamesForAnnotation(SpringBootApplication.class))
+            .findFirst()
+            .map(beanName -> {
+                Class<?> beanClass = Objects.requireNonNull(context.getType(beanName), "SpringBootApplication class type is null");
+                return beanClass.getPackageName();
+            })
+            .orElseThrow(() -> new IllegalStateException("Could not find @SpringBootApplication annotation.."));
     }
 
     @Bean
-    @ConditionalOnMissingBean
-    public Deadlock4jDetectAspect deadlockDetectAspect(DatabaseDeadlockExceptionChecker databaseDeadlockExceptionChecker) {
-        return new Deadlock4jDetectAspect(databaseDeadlockExceptionChecker);
+    public Advisor deadlock4jAdvisor(DatabaseDeadlockExceptionChecker checker) {
+        DeadlockMethodInterceptor interceptor = new DeadlockMethodInterceptor(checker, findBasePackage());
+        return new DefaultPointcutAdvisor(interceptor, interceptor);
     }
 }
