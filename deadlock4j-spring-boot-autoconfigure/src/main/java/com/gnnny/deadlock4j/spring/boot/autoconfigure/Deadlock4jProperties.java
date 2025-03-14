@@ -11,8 +11,8 @@ import java.util.List;
 public class Deadlock4jProperties {
     private boolean logEnabled = true;
     private String instanceId = "application";
-    private String tcpServerIp = "127.0.0.1";
-    private int tcpServerPort = 8282;
+    private String tcpServerIp;
+    private int tcpServerPort = 0;
     private int monitorInterval = 1000;
     private int heartbeatInterval = 30000;
     private Deadlock4jConfig.TransportType transportType = Deadlock4jConfig.TransportType.NONE;
