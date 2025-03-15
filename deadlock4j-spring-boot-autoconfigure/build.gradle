@@ -7,6 +7,7 @@ plugins {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-logging'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
     implementation 'org.springframework.boot:spring-boot-autoconfigure'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 

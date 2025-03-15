@@ -2,7 +2,11 @@ package com.gnnny.deadlock4j.spring.boot.autoconfigure;
 
 import com.gnnny.deadlock4j.bootstrap.Deadlock4jInitializer;
 import com.gnnny.deadlock4j.config.Deadlock4jConfig;
+import com.gnnny.deadlock4j.detector.DatabaseDeadlockDetector;
+import com.gnnny.deadlock4j.detector.ThreadDeadlockDetector;
 import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionChecker;
+import com.gnnny.deadlock4j.handler.database.DatabaseDeadlockHandlerManager;
+import com.gnnny.deadlock4j.handler.thread.ThreadDeadlockHandlerManager;
 import com.gnnny.deadlock4j.transport.ConnectionManager;
 import com.gnnny.deadlock4j.transport.EventSender;
 import com.gnnny.deadlock4j.transport.NoOpConnectionManager;
@@ -14,13 +18,12 @@ import com.gnnny.deadlock4j.transport.heartbeat.TcpHeartbeatSender;
 import com.gnnny.deadlock4j.transport.queue.QueueEventSender;
 import com.gnnny.deadlock4j.transport.tcp.TcpConnectionManager;
 import com.gnnny.deadlock4j.transport.tcp.TcpEventSender;
+import com.gnnny.deadlock4j.util.LockManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.aop.Advisor;
-import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -31,10 +34,11 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+
 @Slf4j
 @RequiredArgsConstructor
-@Configuration(proxyBeanMethods = false)
-@ConditionalOnBean(annotation = EnableDeadlock4j.class)
+@Configuration
+@ConditionalOnProperty(prefix = "deadlock4j", name = "enabled", havingValue = "true", matchIfMissing = false)
 @EnableConfigurationProperties(Deadlock4jProperties.class)
 public class Deadlock4jAutoConfiguration {
     private final Deadlock4jProperties properties;
@@ -114,10 +118,33 @@ public class Deadlock4jAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public Deadlock4jInitializer deadlock4jInitializer(Deadlock4jConfig config, EventSender eventSender,
+    public LockManager lockManager() {
+        return new LockManager();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ThreadDeadlockHandlerManager threadHandlerManager() {
+        return new ThreadDeadlockHandlerManager(new ThreadDeadlockDetector());
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public DatabaseDeadlockHandlerManager databaseHandlerManager(DatabaseDeadlockExceptionChecker exceptionChecker) {
+        return new DatabaseDeadlockHandlerManager(new DatabaseDeadlockDetector(exceptionChecker));
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public Deadlock4jInitializer deadlock4jInitializer(Deadlock4jConfig config,
+                                                       EventSender eventSender,
                                                        ScheduledExecutorService deadlockDetectionScheduler,
-                                                       HeartbeatManager heartbeatManager) {
-        return Deadlock4jInitializer.getInstance(config, eventSender, deadlockDetectionScheduler, heartbeatManager);
+                                                       HeartbeatManager heartbeatManager,
+                                                       LockManager lockManager,
+                                                       ThreadDeadlockHandlerManager threadHandlerManager,
+                                                       DatabaseDeadlockHandlerManager databaseHandlerManager) {
+        return Deadlock4jInitializer.getInstance(config, eventSender, deadlockDetectionScheduler, heartbeatManager,
+            lockManager, threadHandlerManager, databaseHandlerManager);
     }
 
     @Bean
@@ -143,8 +170,7 @@ public class Deadlock4jAutoConfiguration {
     }
 
     @Bean
-    public Advisor deadlock4jAdvisor(DatabaseDeadlockExceptionChecker checker) {
-        DeadlockMethodInterceptor interceptor = new DeadlockMethodInterceptor(checker, findBasePackage());
-        return new DefaultPointcutAdvisor(interceptor, interceptor);
+    public Deadlock4jAspect deadlockAspect(DatabaseDeadlockExceptionChecker databaseDeadlockExceptionChecker) {
+        return new Deadlock4jAspect(databaseDeadlockExceptionChecker);
     }
 }
