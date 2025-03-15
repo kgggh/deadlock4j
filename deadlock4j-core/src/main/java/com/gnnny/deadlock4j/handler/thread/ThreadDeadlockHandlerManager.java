@@ -21,7 +21,7 @@ public class ThreadDeadlockHandlerManager implements DeadlockHandlerManager<Thre
     }
 
     @Override
-    public void executeHandlers() {
+    public void processHandlers() {
         List<ThreadDeadlockEvent> events = detector.detect();
         if (events == null || events.isEmpty()) {
             return;
@@ -30,5 +30,10 @@ public class ThreadDeadlockHandlerManager implements DeadlockHandlerManager<Thre
         for (ThreadDeadlockHandler handler : handlers) {
             handler.handle(events);
         }
+    }
+
+    @Override
+    public void stop() {
+        handlers.clear();
     }
 }

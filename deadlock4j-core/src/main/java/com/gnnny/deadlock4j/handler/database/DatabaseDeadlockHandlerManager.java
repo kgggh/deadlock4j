@@ -24,7 +24,7 @@ public class DatabaseDeadlockHandlerManager implements DeadlockHandlerManager<Da
     }
 
     @Override
-    public void executeHandlers() {
+    public void processHandlers() {
         List<DatabaseDeadlockEvent> events = detector.detect();
         if (events == null || events.isEmpty()) {
             return;
@@ -33,5 +33,10 @@ public class DatabaseDeadlockHandlerManager implements DeadlockHandlerManager<Da
         for (DatabaseDeadlockHandler handler : handlers) {
             handler.handle(events);
         }
+    }
+
+    @Override
+    public void stop() {
+        handlers.clear();
     }
 }

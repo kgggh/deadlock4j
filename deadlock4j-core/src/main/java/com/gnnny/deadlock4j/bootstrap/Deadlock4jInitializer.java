@@ -1,9 +1,6 @@
 package com.gnnny.deadlock4j.bootstrap;
 
 import com.gnnny.deadlock4j.config.Deadlock4jConfig;
-import com.gnnny.deadlock4j.detector.DatabaseDeadlockDetector;
-import com.gnnny.deadlock4j.detector.ThreadDeadlockDetector;
-import com.gnnny.deadlock4j.exception.DatabaseDeadlockExceptionChecker;
 import com.gnnny.deadlock4j.handler.database.DatabaseDeadlockEventSendHandler;
 import com.gnnny.deadlock4j.handler.database.DatabaseDeadlockHandlerManager;
 import com.gnnny.deadlock4j.handler.database.DatabaseDeadlockLogHandler;
@@ -14,6 +11,7 @@ import com.gnnny.deadlock4j.transport.ConnectionManager;
 import com.gnnny.deadlock4j.transport.EventSender;
 import com.gnnny.deadlock4j.transport.NoOpConnectionManager;
 import com.gnnny.deadlock4j.transport.heartbeat.HeartbeatManager;
+import com.gnnny.deadlock4j.util.LockManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,45 +28,39 @@ public class Deadlock4jInitializer {
     private final HeartbeatManager heartbeatManager;
     private final EventSender eventSender;
     private volatile boolean started = false;
+    private final LockManager lockManager;
 
-    protected Deadlock4jInitializer(Deadlock4jConfig config,
-                                    EventSender eventSender,
-                                    ScheduledExecutorService deadlockDetectionScheduler,
-                                    HeartbeatManager heartbeatManager) {
+    private static Deadlock4jInitializer instance;
+
+    private Deadlock4jInitializer(Deadlock4jConfig config,
+                                 EventSender eventSender,
+                                 ScheduledExecutorService deadlockDetectionScheduler,
+                                 HeartbeatManager heartbeatManager,
+                                 LockManager lockManager,
+                                 ThreadDeadlockHandlerManager threadHandlerManager,
+                                 DatabaseDeadlockHandlerManager databaseHandlerManager) {
         this.config = Objects.requireNonNull(config, "DeadlockBusterConfig must not be null");
         this.eventSender = Objects.requireNonNull(eventSender, "DeadlockEventSendStrategy must not be null");
-        this.threadHandlerManager = new ThreadDeadlockHandlerManager(new ThreadDeadlockDetector());
-        this.databaseHandlerManager = new DatabaseDeadlockHandlerManager(
-            new DatabaseDeadlockDetector(new DatabaseDeadlockExceptionChecker(config.getDetectDatabaseExceptionClasses())));
+        this.lockManager = lockManager;
+        this.threadHandlerManager = threadHandlerManager;
+        this.databaseHandlerManager = databaseHandlerManager;
         this.deadlockDetectionScheduler = deadlockDetectionScheduler;
         this.heartbeatManager = heartbeatManager;
-    }
-
-    private static class InstanceHolder {
-        private static Deadlock4jInitializer instance;
-
-        static void initialize(Deadlock4jConfig config,
-                               EventSender eventSender,
-                               ScheduledExecutorService deadlockDetectionScheduler,
-                               HeartbeatManager heartbeatManager
-                               ) {
-            if (instance == null) {
-                instance = new Deadlock4jInitializer(config, eventSender, deadlockDetectionScheduler, heartbeatManager);
-            }
-        }
-
-        static Deadlock4jInitializer getInstance() {
-            return instance;
-        }
     }
 
     public static Deadlock4jInitializer getInstance(Deadlock4jConfig config,
                                                     EventSender eventSender,
                                                     ScheduledExecutorService deadlockDetectionScheduler,
-                                                    HeartbeatManager heartbeatManager) {
-        InstanceHolder.initialize(config, eventSender, deadlockDetectionScheduler, heartbeatManager);
+                                                    HeartbeatManager heartbeatManager,
+                                                    LockManager lockManager,
+                                                    ThreadDeadlockHandlerManager threadHandlerManager,
+                                                    DatabaseDeadlockHandlerManager databaseHandlerManager) {
+        if (instance == null) {
+            instance = new Deadlock4jInitializer(config, eventSender, deadlockDetectionScheduler, heartbeatManager,
+                lockManager, threadHandlerManager, databaseHandlerManager);
+        }
 
-        return InstanceHolder.getInstance();
+        return instance;
     }
 
     public synchronized void start() {
@@ -81,7 +73,6 @@ public class Deadlock4jInitializer {
         if (monitoringInterval < 500) {
             throw new IllegalArgumentException("monitoringInterval interval must be greater than 500. Given: " + monitoringInterval);
         }
-
 
         LOG.info("DeadlockBuster is starting...");
 
@@ -99,26 +90,52 @@ public class Deadlock4jInitializer {
             heartbeatManager.start();
         }
 
-        deadlockDetectionScheduler.scheduleWithFixedDelay(() -> {
-            try {
-                executeHandlers();
-            } catch (Exception e) {
-                LOG.error("Unexpected error in DeadlockBuster execution", e);
-            }
-        }, 0, monitoringInterval, TimeUnit.MILLISECONDS);
+        startHandlerExecutors(deadlockDetectionScheduler);
 
         started = true;
 
         LOG.info("DeadlockBuster started with monitoring interval: {} ms", monitoringInterval);
     }
 
-    private void executeHandlers() {
+    private void startHandlerExecutors(ScheduledExecutorService scheduler) {
+        scheduler.scheduleAtFixedRate(() -> {
+            lockManager.lock(LockManager.LockCategory.THREAD);
+            try {
+                executeThreadHandlers();
+            } catch (Exception e) {
+                LOG.error("Error executing thread deadlock handlers.", e);
+            } finally {
+                lockManager.unlock(LockManager.LockCategory.THREAD);
+            }
+        }, 0, config.getMonitorInterval(), TimeUnit.MILLISECONDS);
+
+        scheduler.scheduleAtFixedRate(() -> {
+            lockManager.lock(LockManager.LockCategory.DATABASE);
+            try {
+                executeDatabaseHandlers();
+            } catch (Exception e) {
+                LOG.error("Error executing database deadlock handlers.", e);
+            } finally {
+                lockManager.unlock(LockManager.LockCategory.DATABASE);
+            }
+        }, 0, config.getMonitorInterval(), TimeUnit.MILLISECONDS);
+    }
+
+    private void executeThreadHandlers() {
         try {
-            LOG.debug("Executing registered handlers...");
-            threadHandlerManager.executeHandlers();
-            databaseHandlerManager.executeHandlers();
+            LOG.debug("Executing thread deadlock handlers...");
+            threadHandlerManager.processHandlers();
         } catch (Exception e) {
-            LOG.error("Error executing handlers..", e);
+            LOG.error("Error executing thread deadlock handlers.", e);
+        }
+    }
+
+    private void executeDatabaseHandlers() {
+        try {
+            LOG.debug("Executing database deadlock handlers...");
+            databaseHandlerManager.processHandlers();
+        } catch (Exception e) {
+            LOG.error("Error executing database deadlock handlers.", e);
         }
     }
 
@@ -129,6 +146,9 @@ public class Deadlock4jInitializer {
         }
 
         LOG.info("Stopping DeadlockBuster...");
+
+        threadHandlerManager.stop();
+        databaseHandlerManager.stop();
 
         deadlockDetectionScheduler.shutdown();
         try {
