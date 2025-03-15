@@ -17,7 +17,7 @@ class ThreadDeadlockEventSendHandlerTest {
     private ThreadDeadlockEventSendHandler handler;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         eventSender = mock(EventSender.class);
         Deadlock4jConfig config = mock(Deadlock4jConfig.class);
         handler = new ThreadDeadlockEventSendHandler(eventSender, config);

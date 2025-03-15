@@ -22,7 +22,7 @@ class TcpEventSenderTest {
     private OutputStream outputStream;
 
     @BeforeEach
-    void set_up() throws IOException {
+    void setUp() throws IOException {
         socket = mock(Socket.class);
         outputStream = mock(BufferedOutputStream.class);
         tcpConnectionManager = mock(TcpConnectionManager.class);

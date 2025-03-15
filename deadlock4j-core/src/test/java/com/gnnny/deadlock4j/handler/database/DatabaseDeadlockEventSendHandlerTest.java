@@ -18,7 +18,7 @@ class DatabaseDeadlockEventSendHandlerTest {
     private DatabaseDeadlockEventSendHandler handler;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         eventSender = mock(EventSender.class);
         config = mock(Deadlock4jConfig.class);
         when(config.getInstanceId()).thenReturn("instanceId");

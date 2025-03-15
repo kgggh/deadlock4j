@@ -19,7 +19,7 @@ class HeartbeatManagerTest {
     private Deadlock4jConfig config;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         tcpConnectionManager = mock(TcpConnectionManager.class);
         heartbeatSender = mock(HeartbeatSender.class);
         scheduler = mock(ScheduledExecutorService.class);

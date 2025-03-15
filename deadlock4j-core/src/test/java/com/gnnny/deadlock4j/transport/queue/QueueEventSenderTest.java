@@ -12,7 +12,7 @@ class QueueEventSenderTest {
     private QueueEventSender queueEventSender;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         queueEventSender = mock(QueueEventSender.class);
     }
 

@@ -16,7 +16,7 @@ class TcpConnectionManagerTest {
     private Socket socket;
 
     @BeforeEach
-    void set_up() {
+    void setUp() {
         tcpConnectionManager = spy(new TcpConnectionManager("127.0.0.1", 8282));
         socket = mock(Socket.class);
     }
