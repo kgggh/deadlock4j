@@ -54,7 +54,7 @@ class DatabaseDeadlockHandlerManagerTest {
         manager.registerHandler(handler2);
 
         // when
-        manager.executeHandlers();
+        manager.processHandlers();
 
         // then
         verify(handler1).handle(events);
@@ -70,7 +70,7 @@ class DatabaseDeadlockHandlerManagerTest {
         manager.registerHandler(handler1);
 
         // when
-        manager.executeHandlers();
+        manager.processHandlers();
 
         // then
         verifyNoInteractions(handler1);
@@ -86,7 +86,7 @@ class DatabaseDeadlockHandlerManagerTest {
         when(detector.detect()).thenReturn(events);
 
         // when
-        manager.executeHandlers();
+        manager.processHandlers();
 
         // then
         verifyNoInteractions(handler1);

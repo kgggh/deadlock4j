@@ -61,7 +61,7 @@ class ThreadDeadlockHandlerManagerTest {
         manager.registerHandler(handler2);
 
         // when
-        manager.executeHandlers();
+        manager.processHandlers();
 
         // then
         verify(handler1, times(1)).handle(events);
@@ -76,7 +76,7 @@ class ThreadDeadlockHandlerManagerTest {
         manager.registerHandler(handler1);
 
         // when
-        manager.executeHandlers();
+        manager.processHandlers();
 
         // then
         verify(handler1, never()).handle(any());
@@ -102,7 +102,7 @@ class ThreadDeadlockHandlerManagerTest {
         when(detector.detect()).thenReturn(events);
 
         // when
-        manager.executeHandlers();
+        manager.processHandlers();
 
         // then
         verifyNoInteractions(handler1);
