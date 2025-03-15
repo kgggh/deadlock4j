@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 @ConfigurationProperties(prefix = "deadlock4j")
 public class Deadlock4jProperties {
+    private boolean enabled = false;
     private boolean logEnabled = true;
     private String instanceId = "application";
     private String tcpServerIp;
@@ -18,12 +19,28 @@ public class Deadlock4jProperties {
     private Deadlock4jConfig.TransportType transportType = Deadlock4jConfig.TransportType.NONE;
     private List<String> detectDatabaseExceptionClasses;
 
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     public boolean isLogEnabled() {
         return logEnabled;
     }
 
     public void setLogEnabled(boolean logEnabled) {
         this.logEnabled = logEnabled;
+    }
+
+    public String getInstanceId() {
+        return instanceId;
+    }
+
+    public void setInstanceId(String instanceId) {
+        this.instanceId = instanceId;
     }
 
     public String getTcpServerIp() {
