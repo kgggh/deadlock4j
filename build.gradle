@@ -1,8 +1,20 @@
 allprojects {
-    group = 'com.gnnny'
-    version = '0.1'
+    group = 'com.github.kgggh'
+    version = '1.0.0'
+}
 
-    repositories {
-        mavenCentral()
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+
+    publishing {
+        publications {
+            maven(MavenPublication) {
+                groupId project.group
+                artifactId project.name
+                version project.version
+                from components.java
+            }
+        }
     }
 }
