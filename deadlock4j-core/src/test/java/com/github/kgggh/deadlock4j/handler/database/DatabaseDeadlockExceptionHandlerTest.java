@@ -42,14 +42,14 @@ class DatabaseDeadlockExceptionHandlerTest {
     @Test
     void should_not_add_exception_to_store_when_not_deadlock() {
         // given
-        Throwable non_deadlock_exception = new RuntimeException("Some other error");
+        Throwable nonDeadlockException = new RuntimeException("Some other error");
         when(exceptionChecker.isDeadlockException(any(Throwable.class))).thenReturn(false);
 
         // when
         // then
-        assertThatThrownBy(() -> handler.uncaughtException(Thread.currentThread(), non_deadlock_exception))
+        assertThatThrownBy(() -> handler.uncaughtException(Thread.currentThread(), nonDeadlockException))
             .isInstanceOf(RuntimeException.class)
-            .hasCause(non_deadlock_exception);
+            .hasCause(nonDeadlockException);
 
         assertThat(DatabaseDeadlockExceptionStore.getAll()).isNotNull().isEmpty();
     }

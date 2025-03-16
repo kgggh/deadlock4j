@@ -18,7 +18,7 @@ public class Deadlock4jAspect {
         "@within(com.github.kgggh.deadlock4j.spring.boot.autoconfigure.DetectDatabaseDeadlock)",
         throwing = "ex")
     public void detectDeadlock(Exception ex) throws Exception {
-        if (checker.isDeadlockException(ex)) {
+        if(checker.isDeadlockException(ex)) {
             DatabaseDeadlockExceptionStore.add(ex);
         }
 

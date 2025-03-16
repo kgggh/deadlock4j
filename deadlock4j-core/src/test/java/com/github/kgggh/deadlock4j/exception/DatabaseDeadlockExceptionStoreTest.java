@@ -35,20 +35,6 @@ class DatabaseDeadlockExceptionStoreTest {
     }
 
     @Test
-    void add_does_not_exceed_max_queue_size() {
-        // given
-        for (int i = 0; i < 35; i++) {
-            DatabaseDeadlockExceptionStore.add(new SQLException("Exception " + i));
-        }
-
-        // when
-        List<DatabaseDeadlockExceptionStore.DatabaseDeadlockSnapshot> exceptions = DatabaseDeadlockExceptionStore.getAll();
-
-        // then
-        assertThat(exceptions).hasSize(30);
-    }
-
-    @Test
     void peek_all_returns_all_exceptions() {
         // given
         Throwable exception1 = new SQLException("SQL Error");
@@ -79,4 +65,3 @@ class DatabaseDeadlockExceptionStoreTest {
         assertThat(exceptions).isEmpty();
     }
 }
-

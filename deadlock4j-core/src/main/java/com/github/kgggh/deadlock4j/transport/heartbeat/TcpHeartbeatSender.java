@@ -7,16 +7,16 @@ import com.github.kgggh.deadlock4j.transport.tcp.TcpEventSender;
 
 public class TcpHeartbeatSender implements HeartbeatSender {
     private final TcpEventSender tcpEventSender;
-    private final Deadlock4jConfig config;
+    private final Deadlock4jConfig deadlock4jConfig;
 
-    public TcpHeartbeatSender(TcpEventSender tcpEventSender, Deadlock4jConfig config) {
+    public TcpHeartbeatSender(TcpEventSender tcpEventSender, Deadlock4jConfig deadlock4jConfig) {
         this.tcpEventSender = tcpEventSender;
-        this.config = config;
+        this.deadlock4jConfig = deadlock4jConfig;
     }
 
     @Override
     public void send() {
-        String instanceId = config.getInstanceId();
+        String instanceId = deadlock4jConfig.getInstanceId();
         SystemEventProto heartbeatMessage = ProtoBufConverter.createHeartbeatMessage(instanceId);
         tcpEventSender.send(heartbeatMessage);
     }

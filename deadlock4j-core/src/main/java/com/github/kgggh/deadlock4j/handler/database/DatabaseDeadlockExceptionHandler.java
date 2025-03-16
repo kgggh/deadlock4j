@@ -12,7 +12,7 @@ public class DatabaseDeadlockExceptionHandler implements Thread.UncaughtExceptio
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        if (deadlockExceptionChecker.isDeadlockException(e)) {
+        if(deadlockExceptionChecker.isDeadlockException(e)) {
             DatabaseDeadlockExceptionStore.add(e);
         }
 

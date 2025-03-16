@@ -21,7 +21,7 @@ public class DatabaseDeadlockDetector implements DeadlockDetector<DatabaseDeadlo
         while (!DatabaseDeadlockExceptionStore.isEmpty()) {
             DatabaseDeadlockExceptionStore.DatabaseDeadlockSnapshot deadlockSnapshot = DatabaseDeadlockExceptionStore.next();
 
-            if (deadlockSnapshot != null && exceptionChecker.isDeadlockException(deadlockSnapshot.getException())) {
+            if (deadlockSnapshot != null) {
                 detectedEvents.add(exceptionChecker.createDeadlockEvent(deadlockSnapshot.getTimestamp(), deadlockSnapshot.getException()));
             }
         }

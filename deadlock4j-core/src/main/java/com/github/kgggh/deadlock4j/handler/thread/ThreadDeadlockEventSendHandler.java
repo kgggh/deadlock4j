@@ -10,11 +10,11 @@ import java.util.List;
 
 public class ThreadDeadlockEventSendHandler implements ThreadDeadlockHandler {
     private final EventSender sender;
-    private final Deadlock4jConfig config;
+    private final Deadlock4jConfig deadlock4jConfig;
 
-    public ThreadDeadlockEventSendHandler(EventSender sender, Deadlock4jConfig config) {
+    public ThreadDeadlockEventSendHandler(EventSender sender, Deadlock4jConfig deadlock4jConfig) {
         this.sender = sender;
-        this.config = config;
+        this.deadlock4jConfig = deadlock4jConfig;
     }
 
     @Override
@@ -29,6 +29,6 @@ public class ThreadDeadlockEventSendHandler implements ThreadDeadlockHandler {
     }
 
     private DeadlockEventPayload convertToPayload(DeadlockEvent event) {
-        return new DeadlockEventPayload(config.getInstanceId(), event);
+        return new DeadlockEventPayload(deadlock4jConfig.getInstanceId(), event);
     }
 }

@@ -26,7 +26,7 @@ class HeartbeatManagerTest {
         scheduler = mock(ScheduledExecutorService.class);
         config = mock(Deadlock4jConfig.class);
         when(config.getInstanceId()).thenReturn("instanceId");
-        heartbeatManager = new HeartbeatManager(1000, heartbeatSender, tcpConnectionManager, scheduler);
+        heartbeatManager = new HeartbeatManager(config, heartbeatSender, tcpConnectionManager, scheduler);
     }
 
     @Test

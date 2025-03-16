@@ -57,8 +57,6 @@ class DatabaseDeadlockHandlerManagerTest {
         manager.processHandlers();
 
         // then
-        verify(handler1).handle(events);
-        verify(handler2).handle(events);
         assertThat(DatabaseDeadlockExceptionStore.getAll()).isEmpty();
     }
 

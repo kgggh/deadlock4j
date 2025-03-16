@@ -41,41 +41,29 @@ public class Deadlock4jAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public Deadlock4jConfig deadlockBusterConfig() {
+    public Deadlock4jConfig deadlock4jConfig() {
         log.debug("Initializing DeadlockBusterConfig with properties: {}", properties);
 
         return new Deadlock4jConfig(
+            properties.isEnabled(),
             properties.isLogEnabled(),
             properties.getInstanceId(),
             properties.getTcpServerIp(),
             properties.getTcpServerPort(),
             properties.getMonitorInterval(),
             properties.getHeartbeatInterval(),
-            properties.getTransportType(),
-            properties.getDetectDatabaseExceptionClasses()
+            properties.getTransportType()
         );
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public ScheduledExecutorService deadlockDetectionScheduler() {
-        return Executors.newScheduledThreadPool(2);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ScheduledExecutorService heartbeatScheduler() {
-        return Executors.newScheduledThreadPool(1);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ConnectionManager<?> connectionManager(Deadlock4jConfig config) {
-        if(config.getTransportType() != Deadlock4jConfig.TransportType.TCP) {
+    public ConnectionManager<?> connectionManager(Deadlock4jConfig deadlock4jConfig) {
+        if(deadlock4jConfig.getTransportType() != Deadlock4jConfig.TransportType.TCP) {
             return new NoOpConnectionManager();
         }
 
-        return new TcpConnectionManager(properties.getTcpServerIp(), properties.getTcpServerPort());
+        return new TcpConnectionManager(deadlock4jConfig.getTcpServerIp(), deadlock4jConfig.getTcpServerPort());
     }
 
     @Bean
@@ -90,9 +78,9 @@ public class Deadlock4jAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public HeartbeatSender heartbeatSender(EventSender eventSender, Deadlock4jConfig config) {
-        if (Objects.requireNonNull(config.getTransportType()) == Deadlock4jConfig.TransportType.TCP) {
-            return new TcpHeartbeatSender((TcpEventSender) eventSender, config);
+    public HeartbeatSender heartbeatSender(EventSender eventSender, Deadlock4jConfig deadlock4jConfig) {
+        if (Objects.requireNonNull(deadlock4jConfig.getTransportType()) == Deadlock4jConfig.TransportType.TCP) {
+            return new TcpHeartbeatSender((TcpEventSender) eventSender, deadlock4jConfig);
         }
 
         return new NoOpHeartbeatSender();
@@ -101,10 +89,11 @@ public class Deadlock4jAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public HeartbeatManager heartbeatManager(ConnectionManager<?> connectionManager,
-                                             ScheduledExecutorService heartbeatScheduler,
-                                             HeartbeatSender heartbeatSender) {
+                                             HeartbeatSender heartbeatSender,
+                                             Deadlock4jConfig deadlock4jConfig) {
+        ScheduledExecutorService heartbeatScheduler = Executors.newScheduledThreadPool(1);
         return new HeartbeatManager(
-            properties.getHeartbeatInterval(),
+            deadlock4jConfig,
             heartbeatSender,
             connectionManager,
             heartbeatScheduler
@@ -113,33 +102,27 @@ public class Deadlock4jAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public LockManager lockManager() {
-        return new LockManager();
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public ThreadDeadlockHandlerManager threadHandlerManager() {
+    public ThreadDeadlockHandlerManager threadDeadlockHandlerManager() {
         return new ThreadDeadlockHandlerManager(new ThreadDeadlockDetector());
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public DatabaseDeadlockHandlerManager databaseHandlerManager(DatabaseDeadlockExceptionChecker exceptionChecker) {
-        return new DatabaseDeadlockHandlerManager(new DatabaseDeadlockDetector(exceptionChecker));
+    public DatabaseDeadlockHandlerManager databaseDeadlockHandlerManager(DatabaseDeadlockExceptionChecker databaseDeadlockExceptionChecker) {
+        return new DatabaseDeadlockHandlerManager(new DatabaseDeadlockDetector(databaseDeadlockExceptionChecker));
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public Deadlock4jInitializer deadlock4jInitializer(Deadlock4jConfig config,
+    public Deadlock4jInitializer deadlock4jInitializer(Deadlock4jConfig deadlock4jConfig,
                                                        EventSender eventSender,
-                                                       ScheduledExecutorService deadlockDetectionScheduler,
                                                        HeartbeatManager heartbeatManager,
-                                                       LockManager lockManager,
-                                                       ThreadDeadlockHandlerManager threadHandlerManager,
-                                                       DatabaseDeadlockHandlerManager databaseHandlerManager) {
-        return Deadlock4jInitializer.getInstance(config, eventSender, deadlockDetectionScheduler, heartbeatManager,
-            lockManager, threadHandlerManager, databaseHandlerManager);
+                                                       ThreadDeadlockHandlerManager threadDeadlockHandlerManager,
+                                                       DatabaseDeadlockHandlerManager databaseDeadlockHandlerManager) {
+        ScheduledExecutorService deadlockDetectionScheduler = Executors.newScheduledThreadPool(2);
+        LockManager lockManager = new LockManager();
+        return Deadlock4jInitializer.getInstance(deadlock4jConfig, eventSender, deadlockDetectionScheduler, heartbeatManager,
+            lockManager, threadDeadlockHandlerManager, databaseDeadlockHandlerManager);
     }
 
     @Bean
@@ -151,7 +134,7 @@ public class Deadlock4jAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public DatabaseDeadlockExceptionChecker databaseDeadlockExceptionChecker() {
-        return new DatabaseDeadlockExceptionChecker(properties.getDetectDatabaseExceptionClasses());
+        return new DatabaseDeadlockExceptionChecker();
     }
 
     @Bean

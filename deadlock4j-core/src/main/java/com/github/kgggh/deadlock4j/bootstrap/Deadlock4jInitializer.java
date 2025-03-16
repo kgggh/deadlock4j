@@ -52,7 +52,7 @@ public class Deadlock4jInitializer {
         this.heartbeatManager = heartbeatManager;
     }
 
-    public static Deadlock4jInitializer getInstance(Deadlock4jConfig config,
+    public static Deadlock4jInitializer getInstance(Deadlock4jConfig deadlock4jConfig,
                                                     EventSender eventSender,
                                                     ScheduledExecutorService deadlockDetectionScheduler,
                                                     HeartbeatManager heartbeatManager,
@@ -60,7 +60,7 @@ public class Deadlock4jInitializer {
                                                     ThreadDeadlockHandlerManager threadHandlerManager,
                                                     DatabaseDeadlockHandlerManager databaseHandlerManager) {
         if (instance == null) {
-            instance = new Deadlock4jInitializer(config, eventSender, deadlockDetectionScheduler, heartbeatManager,
+            instance = new Deadlock4jInitializer(deadlock4jConfig, eventSender, deadlockDetectionScheduler, heartbeatManager,
                 lockManager, threadHandlerManager, databaseHandlerManager);
         }
 
@@ -68,14 +68,14 @@ public class Deadlock4jInitializer {
     }
 
     public synchronized void start() {
-        if (started) {
-            LOG.warn("DeadlockBuster is already running.");
+        if(!config.isEnabled()) {
+            LOG.warn("DeadlockBuster is disabled.");
             return;
         }
 
-        long monitoringInterval = config.getMonitorInterval();
-        if (monitoringInterval < 500) {
-            throw new IllegalArgumentException("monitoringInterval interval must be greater than 500. Given: " + monitoringInterval);
+        if (started) {
+            LOG.warn("DeadlockBuster is already running.");
+            return;
         }
 
         LOG.info("DeadlockBuster is starting...");
@@ -85,11 +85,11 @@ public class Deadlock4jInitializer {
         registerThreadHandlers();
         registerDatabaseHandlers();
 
-        startHandlerExecutors(deadlockDetectionScheduler);
+        startDeadlockHandlerExecutors();
 
         started = true;
 
-        LOG.info("DeadlockBuster started with monitoring interval: {} ms", monitoringInterval);
+        LOG.info("DeadlockBuster started with monitoring interval: {} ms", config.getMonitorInterval());
     }
 
     private void startHeartbeatManager() {
@@ -132,19 +132,13 @@ public class Deadlock4jInitializer {
         return handlers;
     }
 
-    private void startHandlerExecutors(ScheduledExecutorService scheduler) {
-        scheduler.scheduleAtFixedRate(() -> {
-            lockManager.lock(LockManager.LockCategory.THREAD);
-            try {
-                executeThreadHandlers();
-            } catch (Exception e) {
-                LOG.error("Error executing thread deadlock handlers.", e);
-            } finally {
-                lockManager.unlock(LockManager.LockCategory.THREAD);
-            }
-        }, 0, config.getMonitorInterval(), TimeUnit.MILLISECONDS);
+    private void startDeadlockHandlerExecutors() {
+        startThreadHandler();
+        startDatabaseHandler();
+    }
 
-        scheduler.scheduleAtFixedRate(() -> {
+    private void startDatabaseHandler() {
+        deadlockDetectionScheduler.scheduleAtFixedRate(() -> {
             lockManager.lock(LockManager.LockCategory.DATABASE);
             try {
                 executeDatabaseHandlers();
@@ -152,6 +146,19 @@ public class Deadlock4jInitializer {
                 LOG.error("Error executing database deadlock handlers.", e);
             } finally {
                 lockManager.unlock(LockManager.LockCategory.DATABASE);
+            }
+        }, 0, config.getMonitorInterval(), TimeUnit.MILLISECONDS);
+    }
+
+    private void startThreadHandler() {
+        deadlockDetectionScheduler.scheduleAtFixedRate(() -> {
+            lockManager.lock(LockManager.LockCategory.THREAD);
+            try {
+                executeThreadHandlers();
+            } catch (Exception e) {
+                LOG.error("Error executing thread deadlock handlers.", e);
+            } finally {
+                lockManager.unlock(LockManager.LockCategory.THREAD);
             }
         }, 0, config.getMonitorInterval(), TimeUnit.MILLISECONDS);
     }

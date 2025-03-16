@@ -9,12 +9,12 @@ import com.github.kgggh.deadlock4j.transport.DeadlockEventPayload;
 import java.util.List;
 
 public class DatabaseDeadlockEventSendHandler implements DatabaseDeadlockHandler {
-    private final EventSender sender;
-    private final Deadlock4jConfig config;
+    private final EventSender eventSender;
+    private final Deadlock4jConfig deadlock4jConfig;
 
-    public DatabaseDeadlockEventSendHandler(EventSender sender, Deadlock4jConfig config) {
-        this.sender = sender;
-        this.config = config;
+    public DatabaseDeadlockEventSendHandler(EventSender eventSender, Deadlock4jConfig deadlock4jConfig) {
+        this.eventSender = eventSender;
+        this.deadlock4jConfig = deadlock4jConfig;
     }
 
     @Override
@@ -24,11 +24,11 @@ public class DatabaseDeadlockEventSendHandler implements DatabaseDeadlockHandler
         }
 
         for (DeadlockEvent event : events) {
-            sender.send(convertToPayload(event));
+            eventSender.send(convertToPayload(event));
         }
     }
 
     private DeadlockEventPayload convertToPayload(DeadlockEvent event) {
-        return new DeadlockEventPayload(config.getInstanceId(), event);
+        return new DeadlockEventPayload(deadlock4jConfig.getInstanceId(), event);
     }
 }

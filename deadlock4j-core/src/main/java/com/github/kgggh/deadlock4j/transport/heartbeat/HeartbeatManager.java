@@ -1,5 +1,6 @@
 package com.github.kgggh.deadlock4j.transport.heartbeat;
 
+import com.github.kgggh.deadlock4j.config.Deadlock4jConfig;
 import com.github.kgggh.deadlock4j.transport.ConnectionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,17 +10,13 @@ import java.util.concurrent.TimeUnit;
 
 public class HeartbeatManager {
     private static final Logger LOG = LoggerFactory.getLogger(HeartbeatManager.class);
-    private final int heartBeatInterval;
+    private final Deadlock4jConfig deadlock4jConfig;
     private final HeartbeatSender heartbeatSender;
     private final ConnectionManager<?> connectionManager;
     private final ScheduledExecutorService scheduler;
 
-    public HeartbeatManager(int heartBeatInterval, HeartbeatSender heartbeatSender, ConnectionManager<?> connectionManager, ScheduledExecutorService scheduler) {
-        if (heartBeatInterval < 500) {
-            throw new IllegalArgumentException("Heartbeat interval must be greater than 500. Given: " + heartBeatInterval);
-        }
-
-        this.heartBeatInterval = heartBeatInterval;
+    public HeartbeatManager(Deadlock4jConfig deadlock4jConfig, HeartbeatSender heartbeatSender, ConnectionManager<?> connectionManager, ScheduledExecutorService scheduler) {
+        this.deadlock4jConfig = deadlock4jConfig;
         this.heartbeatSender = heartbeatSender;
         this.connectionManager = connectionManager;
         this.scheduler = scheduler;
@@ -30,7 +27,7 @@ public class HeartbeatManager {
     }
 
     public void start() {
-        scheduler.scheduleAtFixedRate(this::heartbeatTask, 0, heartBeatInterval, TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(this::heartbeatTask, 0, deadlock4jConfig.getHeartbeatInterval(), TimeUnit.MILLISECONDS);
     }
 
     private void heartbeatTask() {

@@ -1,20 +1,14 @@
 package com.github.kgggh.deadlock4j.exception;
 
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class DatabaseDeadlockExceptionStore {
-    private static final int MAX_QUEUE_SIZE = 30;
-    private static final BlockingQueue<DatabaseDeadlockSnapshot> recentDatabaseExceptions = new LinkedBlockingQueue<>(MAX_QUEUE_SIZE);
+    private static final ConcurrentLinkedQueue<DatabaseDeadlockSnapshot> recentDatabaseExceptions = new ConcurrentLinkedQueue<>();
 
     public static void add(Throwable e) {
         DatabaseDeadlockSnapshot snapshot = new DatabaseDeadlockSnapshot(e);
-
-        if (!recentDatabaseExceptions.offer(snapshot)) {
-            recentDatabaseExceptions.poll();
-            recentDatabaseExceptions.offer(snapshot);
-        }
+        recentDatabaseExceptions.offer(snapshot);
     }
 
     public static List<DatabaseDeadlockSnapshot> getAll() {
