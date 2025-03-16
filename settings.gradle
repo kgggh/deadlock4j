@@ -3,3 +3,11 @@ rootProject.name = 'deadlock4j'
 include 'deadlock4j-core'
 include 'deadlock4j-spring-boot-autoconfigure'
 include 'deadlock4j-spring-boot-starter'
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
