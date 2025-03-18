@@ -1,0 +1,24 @@
+server:
+  port: 8182
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: test
+    password: test
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+deadlock4j:
+  enabled: true
+  log-enabled: true
+  instance-id: "test-app-2"
+  monitor-interval: 500
+  heartbeat-interval: 1000
+  transport-type: TCP
+  tcp-server-ip: "127.0.0.1"
+  tcp-server-port: 58282

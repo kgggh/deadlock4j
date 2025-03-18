@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+option java_package = "com.example";
+option java_multiple_files = true;
+
+enum EventType {
+  HEARTBEAT = 0;
+  THREAD_DEADLOCK = 1;
+  DATABASE_DEADLOCK = 2;
+}
+
+message HeartbeatEventProto {
+  string message = 1;
+}
+
+message ThreadDeadlockEventProto {
+  int64 timestamp = 1;
+  string thread_name = 2;
+  int64 thread_id = 3;
+  string thread_state = 4;
+  int64 blocked_count = 5;
+  int64 waited_count = 6;
+  string lock_name = 7;
+  int64 lock_owner_id = 8;
+  string lock_owner_name = 9;
+  string stack_trace = 10;
+}
+
+message DatabaseDeadlockEventProto {
+  int64 timestamp = 1;
+  string exception_name = 2;
+  string sql_state = 3;
+  string reason = 4;
+}
+
+message SystemEventProto {
+  EventType type = 1;
+  string instance_id = 2;
+  oneof event {
+    HeartbeatEventProto heartbeat = 3;
+    ThreadDeadlockEventProto thread_deadlock = 4;
+    DatabaseDeadlockEventProto database_deadlock = 5;
+  }
+}

@@ -1,0 +1,4 @@
+tcp:
+  port: 58282
+  boss-threads: 1
+  worker-threads: 1

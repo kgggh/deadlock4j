@@ -1,0 +1,27 @@
+server:
+  port: 8181
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/test?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: test
+    password: test
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    defer-datasource-initialization: true
+  sql:
+    init:
+      mode: always
+  kafka:
+    producer:
+      bootstrap-servers: localhost:29092
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: -1
+deadlock4j:
+  enabled: true
+  log-enabled: true
+  instance-id: "test-app-1"
+  monitor-interval: 1000
+  transport-type: QUEUE
