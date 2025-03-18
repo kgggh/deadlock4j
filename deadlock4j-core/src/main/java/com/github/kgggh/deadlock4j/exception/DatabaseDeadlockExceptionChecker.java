@@ -52,13 +52,16 @@ public class DatabaseDeadlockExceptionChecker {
         addDeadlockException(SQLTransactionRollbackException.class);
     }
 
-
     public void addDeadlockException(Class<? extends Throwable> exceptionClass) {
         deadlockExceptions.add(exceptionClass);
     }
 
     public boolean isDeadlockException(Throwable e) {
         while (e != null) {
+            if (deadlockExceptions.contains(e.getClass())) {
+                return true;
+            }
+
             if (e instanceof SQLException sqlEx) {
                 String sqlState = sqlEx.getSQLState();
                 if (DeadlockSQLState.isDeadlock(sqlState)) {
