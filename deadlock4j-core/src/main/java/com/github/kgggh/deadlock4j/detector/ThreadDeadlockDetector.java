@@ -58,7 +58,7 @@ public class ThreadDeadlockDetector implements DeadlockDetector<ThreadDeadlockEv
 
     private void logDeadlock(long threadId, ThreadDeadlockInfo threadDeadlockInfo, long currentTime) {
         if (threadDeadlockInfo.getLastLoggedTime() == 0) {
-            LOG.info("New Thread deadlock detected. Thread ID: {}", threadId);
+            LOG.debug("New Thread deadlock detected. Thread ID: {}", threadId);
             threadDeadlockInfo.setLastLoggedTime(currentTime);
         }
 
