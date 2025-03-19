@@ -30,7 +30,8 @@ In contrast, Deadlock4j focuses solely on **deadlock detection**, minimizing res
 
 ## Supported Databases 🗃️
 
-Deadlock detection is available for the following databases:
+Deadlock4j detects deadlocks based on SQL exceptions and extracts vendor-specific information.   
+Currently, deadlock detection is available for the following databases
 
 - MySQL
 - PostgreSQL
@@ -195,7 +196,8 @@ java.base@17.0.6/jdk.internal.misc.Unsafe.park(Native Method)
 ## Future Roadmap 🌱
 
 - **Evaluating automatic deadlock resolution** (planned after stability assurance)
-- **Support for additional databases**
+- **Expansion of supported databases' parsing capabilities**
+  - Adding support for deadlock detection based on vendor-specific SQL exceptions
 - **Dedicated Deadlock4j dashboard server**
     - Centralized deadlock event management
     - Integration with Slack, Discord, Email, etc.
