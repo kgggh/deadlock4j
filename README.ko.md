@@ -136,7 +136,7 @@ public class PostService {
 public class PostService {
 
     @Transactional
-    public void processPayment(PaymentDto dto) {
+    public void updatePost(Long postId, PostDto dto) {
         // 클래스 내 모든 메소드의 DB 데드락을 감지
     }
 }
