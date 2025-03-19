@@ -137,7 +137,7 @@ Class-level:
 public class PostService {
 
     @Transactional
-    public void processPayment(PaymentDto dto) {
+    public void updatePost(Long postId, PostDto dto) {
         // Database deadlock detection for all methods within this class
     }
 }
