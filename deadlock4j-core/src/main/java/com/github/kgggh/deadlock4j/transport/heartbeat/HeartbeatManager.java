@@ -2,6 +2,7 @@ package com.github.kgggh.deadlock4j.transport.heartbeat;
 
 import com.github.kgggh.deadlock4j.config.Deadlock4jConfig;
 import com.github.kgggh.deadlock4j.transport.ConnectionManager;
+import com.github.kgggh.deadlock4j.util.SchedulerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,18 +49,6 @@ public class HeartbeatManager {
 
     public synchronized void stop() {
         LOG.info("Stopping HeartbeatManager...");
-        scheduler.shutdown();
-
-        try {
-            if (!scheduler.awaitTermination(3000, TimeUnit.MILLISECONDS)) {
-                LOG.warn("Scheduler did not terminate in time. Forcing shutdown...");
-                scheduler.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            LOG.error("Interrupted while stopping scheduler...", e);
-            scheduler.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+        SchedulerUtils.shutdownGracefully(scheduler, 3000, TimeUnit.MILLISECONDS);
     }
 }
-

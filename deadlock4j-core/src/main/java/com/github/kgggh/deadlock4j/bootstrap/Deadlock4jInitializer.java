@@ -14,6 +14,7 @@ import com.github.kgggh.deadlock4j.transport.EventSender;
 import com.github.kgggh.deadlock4j.transport.NoOpConnectionManager;
 import com.github.kgggh.deadlock4j.transport.heartbeat.HeartbeatManager;
 import com.github.kgggh.deadlock4j.util.LockManager;
+import com.github.kgggh.deadlock4j.util.SchedulerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,29 +139,28 @@ public class Deadlock4jInitializer {
     }
 
     private void startDatabaseHandler() {
-        deadlockDetectionScheduler.scheduleAtFixedRate(() -> {
-            lockManager.lock(LockManager.LockCategory.DATABASE);
-            try {
-                executeDatabaseHandlers();
-            } catch (Exception e) {
-                LOG.error("Error executing database deadlock handlers.", e);
-            } finally {
-                lockManager.unlock(LockManager.LockCategory.DATABASE);
-            }
-        }, 0, config.getMonitorInterval(), TimeUnit.MILLISECONDS);
+        deadlockDetectionScheduler.scheduleAtFixedRate(
+            withLock(LockManager.LockCategory.DATABASE, this::executeDatabaseHandlers),
+            0, config.getMonitorInterval(), TimeUnit.MILLISECONDS);
     }
 
     private void startThreadHandler() {
-        deadlockDetectionScheduler.scheduleAtFixedRate(() -> {
-            lockManager.lock(LockManager.LockCategory.THREAD);
+        deadlockDetectionScheduler.scheduleAtFixedRate(
+            withLock(LockManager.LockCategory.THREAD, this::executeThreadHandlers),
+            0, config.getMonitorInterval(), TimeUnit.MILLISECONDS);
+    }
+
+    private Runnable withLock(LockManager.LockCategory category, Runnable task) {
+        return () -> {
+            lockManager.lock(category);
             try {
-                executeThreadHandlers();
+                task.run();
             } catch (Exception e) {
-                LOG.error("Error executing thread deadlock handlers.", e);
+                LOG.error("Error executing {} deadlock handlers.", category.name().toLowerCase(), e);
             } finally {
-                lockManager.unlock(LockManager.LockCategory.THREAD);
+                lockManager.unlock(category);
             }
-        }, 0, config.getMonitorInterval(), TimeUnit.MILLISECONDS);
+        };
     }
 
     private void executeThreadHandlers() {
@@ -192,17 +192,7 @@ public class Deadlock4jInitializer {
         threadHandlerManager.stop();
         databaseHandlerManager.stop();
 
-        deadlockDetectionScheduler.shutdown();
-        try {
-            if (!deadlockDetectionScheduler.awaitTermination(3000, TimeUnit.MILLISECONDS)) {
-                deadlockDetectionScheduler.shutdownNow();
-            }
-
-        } catch (InterruptedException e) {
-            LOG.error("Interrupted while stopping DeadlockBuster...", e);
-            deadlockDetectionScheduler.shutdownNow();
-            Thread.currentThread().interrupt();
-        }
+        SchedulerUtils.shutdownGracefully(deadlockDetectionScheduler, 3000, TimeUnit.MILLISECONDS);
 
         if (heartbeatManager != null) {
             heartbeatManager.stop();
@@ -214,6 +204,7 @@ public class Deadlock4jInitializer {
         }
 
         started = false;
+        instance = null;
 
         LOG.info("DeadlockBuster stopped...");
     }

@@ -1,30 +1,16 @@
 package com.github.kgggh.deadlock4j.handler.database;
 
 import com.github.kgggh.deadlock4j.event.DatabaseDeadlockEvent;
+import com.github.kgggh.deadlock4j.handler.AbstractLogHandler;
 import com.github.kgggh.deadlock4j.util.DateTimeUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
-public class DatabaseDeadlockLogHandler implements DatabaseDeadlockHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(DatabaseDeadlockLogHandler.class.getName());
+public class DatabaseDeadlockLogHandler extends AbstractLogHandler<DatabaseDeadlockEvent>
+    implements DatabaseDeadlockHandler {
 
     @Override
-    public void handle(List<DatabaseDeadlockEvent> events) {
-        if (events == null || events.isEmpty()) {
-            return;
-        }
-
-        for (DatabaseDeadlockEvent event : events) {
-            String message = formattedLog(event);
-            LOG.warn(message);
-        }
-    }
-
-    private String formattedLog(DatabaseDeadlockEvent event) {
+    protected String formattedLog(DatabaseDeadlockEvent event) {
         return """
-        
+
         [DEADLOCK DETECTED]
         ──────────────────────────────────────────
         Type           : %s

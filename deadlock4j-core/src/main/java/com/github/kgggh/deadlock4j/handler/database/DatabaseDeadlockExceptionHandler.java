@@ -2,8 +2,11 @@ package com.github.kgggh.deadlock4j.handler.database;
 
 import com.github.kgggh.deadlock4j.exception.DatabaseDeadlockExceptionChecker;
 import com.github.kgggh.deadlock4j.exception.DatabaseDeadlockExceptionStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatabaseDeadlockExceptionHandler implements Thread.UncaughtExceptionHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(DatabaseDeadlockExceptionHandler.class);
     private final DatabaseDeadlockExceptionChecker deadlockExceptionChecker;
 
     public DatabaseDeadlockExceptionHandler(DatabaseDeadlockExceptionChecker deadlockExceptionChecker) {
@@ -16,6 +19,6 @@ public class DatabaseDeadlockExceptionHandler implements Thread.UncaughtExceptio
             DatabaseDeadlockExceptionStore.add(e);
         }
 
-        throw new RuntimeException(e);
+        LOG.error("Uncaught exception in thread {}", t.getName(), e);
     }
 }
