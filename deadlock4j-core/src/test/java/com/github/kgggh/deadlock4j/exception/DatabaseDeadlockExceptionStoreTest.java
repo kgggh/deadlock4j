@@ -53,6 +53,22 @@ class DatabaseDeadlockExceptionStoreTest {
     }
 
     @Test
+    void add_should_evict_oldest_when_exceeding_max_size() {
+        // given
+        for (int i = 0; i < 1001; i++) {
+            DatabaseDeadlockExceptionStore.add(new RuntimeException("error-" + i));
+        }
+
+        // when
+        List<DatabaseDeadlockExceptionStore.DatabaseDeadlockSnapshot> all = DatabaseDeadlockExceptionStore.getAll();
+
+        // then
+        assertThat(all).hasSize(1000);
+        assertThat(all.get(0).getException().getMessage()).isEqualTo("error-1");
+        assertThat(all.get(999).getException().getMessage()).isEqualTo("error-1000");
+    }
+
+    @Test
     void clear_removes_all_exceptions() {
         // given
         DatabaseDeadlockExceptionStore.add(new SQLException("Deadlock detected"));

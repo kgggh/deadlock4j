@@ -1,29 +1,16 @@
 package com.github.kgggh.deadlock4j.handler.thread;
 
 import com.github.kgggh.deadlock4j.event.ThreadDeadlockEvent;
+import com.github.kgggh.deadlock4j.handler.AbstractLogHandler;
 import com.github.kgggh.deadlock4j.util.DateTimeUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.List;
+public class ThreadDeadlockLogHandler extends AbstractLogHandler<ThreadDeadlockEvent>
+    implements ThreadDeadlockHandler {
 
-public class ThreadDeadlockLogHandler implements ThreadDeadlockHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(ThreadDeadlockLogHandler.class.getName());
-
-    public void handle(List<ThreadDeadlockEvent> events) {
-        if(events == null || events.isEmpty()) {
-            return;
-        }
-
-        for (ThreadDeadlockEvent event : events) {
-            String message = formattedLog(event);
-            LOG.warn(message);
-        }
-    }
-
-    private String formattedLog(ThreadDeadlockEvent event) {
+    @Override
+    protected String formattedLog(ThreadDeadlockEvent event) {
         return """
-        
+
         [DEADLOCK DETECTED]
         ──────────────────────────────────────────
         Type           : %s

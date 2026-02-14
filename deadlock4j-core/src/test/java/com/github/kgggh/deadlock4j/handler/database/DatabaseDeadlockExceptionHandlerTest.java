@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import java.sql.SQLException;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -31,12 +30,11 @@ class DatabaseDeadlockExceptionHandlerTest {
         when(exceptionChecker.isDeadlockException(deadlockException)).thenReturn(true);
 
         // when
-        try {
-            handler.uncaughtException(Thread.currentThread(), deadlockException);
-        } catch (RuntimeException ignored) { }
+        handler.uncaughtException(Thread.currentThread(), deadlockException);
 
         // then
         verify(exceptionChecker).isDeadlockException(deadlockException);
+        assertThat(DatabaseDeadlockExceptionStore.getAll()).hasSize(1);
     }
 
     @Test
@@ -46,11 +44,9 @@ class DatabaseDeadlockExceptionHandlerTest {
         when(exceptionChecker.isDeadlockException(any(Throwable.class))).thenReturn(false);
 
         // when
-        // then
-        assertThatThrownBy(() -> handler.uncaughtException(Thread.currentThread(), nonDeadlockException))
-            .isInstanceOf(RuntimeException.class)
-            .hasCause(nonDeadlockException);
+        handler.uncaughtException(Thread.currentThread(), nonDeadlockException);
 
+        // then
         assertThat(DatabaseDeadlockExceptionStore.getAll()).isNotNull().isEmpty();
     }
 }

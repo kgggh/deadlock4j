@@ -4,11 +4,15 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class DatabaseDeadlockExceptionStore {
+    private static final int MAX_SIZE = 1000;
     private static final ConcurrentLinkedQueue<DatabaseDeadlockSnapshot> recentDatabaseExceptions = new ConcurrentLinkedQueue<>();
 
     public static void add(Throwable e) {
         DatabaseDeadlockSnapshot snapshot = new DatabaseDeadlockSnapshot(e);
         recentDatabaseExceptions.offer(snapshot);
+        while (recentDatabaseExceptions.size() > MAX_SIZE) {
+            recentDatabaseExceptions.poll();
+        }
     }
 
     public static List<DatabaseDeadlockSnapshot> getAll() {
